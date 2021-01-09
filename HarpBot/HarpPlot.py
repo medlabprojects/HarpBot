@@ -2,10 +2,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-X_AXIS_LIM_LO = -210
-X_AXIS_LIM_HI = 210
-Y_AXIS_LIM_LO = -210
-Y_AXIS_LIM_HI = 210
+X_AXIS_LIM_LO = -200
+X_AXIS_LIM_HI = 350
+Y_AXIS_LIM_LO = -50
+Y_AXIS_LIM_HI = 350
 
 FIG_SIZE_X = 6
 FIG_SIZE_Y = 6
@@ -22,6 +22,7 @@ class HarpPlot:
         
         self.ax.set(xlabel='x (mm)', ylabel='y (mm)', title='HarpPlot')
         self.ax.grid()
+        self.ax.set(aspect='equal')
         
         plt.autoscale(False)
         plt.xlim(X_AXIS_LIM_LO, X_AXIS_LIM_HI)

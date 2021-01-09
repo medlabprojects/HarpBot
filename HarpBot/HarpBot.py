@@ -4,57 +4,53 @@ import time
 import numpy as np
 
 import HarpPlot
-
+import HarpBotSerial
 
 # Robot parameters to be measured/calibrated
-BASE_X_OFFSET = -10.0 # (mm), x distance from the world frame to the robot base
-BASE_Y_OFFSET = -10.0 # (mm), y distance from the world frame to the robot base
-JOINT_1_OFFSET = 0.0 # (deg), angular offset for joint 1, gets added to q1 in kinematics
-JOINT_2_OFFSET = 0.0 # (deg), angular offset for joint 2, gets added to q2 in kinematics
-LINK_1_LENGTH = 120.0 # (mm)
-LINK_2_LENGTH = 60.0 # (mm)
+LINK_1_LENGTH = 160.0 # (mm)
+LINK_2_LENGTH = 145.0 # (mm)
 
-GOTO_STEP_SIZE = 25 # (mm) The max distance that the robot will move in one step when going to a new position
+# Home position of the robot
+HOME_X = LINK_1_LENGTH + LINK_2_LENGTH
+HOME_Y = 0
+
+GOTO_STEP_SIZE = 20 # (mm) The max distance that the robot will move in one step when going to a new position
 
 # Size of paper (8.5x11)
 PAPER_WIDTH = 279.4
 PAPER_HEIGHT = 215.9
-PAPER_Y_OFFSET = 10 # How far in front of the robot the bottom edge of the paper is placed (mm)
+PAPER_X_OFFSET = -87 # How far from the robot the left edge of the paper is placed (mm)
+PAPER_Y_OFFSET = 66.1 # How far in front of the robot the bottom edge of the paper is placed (mm)
 
 
 # Utility functions for Forward and Inverse kinematics
 def forward_kinematics(joint_angle_1, joint_angle_2):
-    # The base of the robot p0 is at the default position
-    x0 = BASE_X_OFFSET
-    y0 = BASE_Y_OFFSET
+    x0 = 0
+    y0 = 0
     
-    # To get from p0 to p1, we add the distance that link 1 gives us to p0
-    theta1 = joint_angle_1 + JOINT_1_OFFSET # Add the variable angle to the measured motor offset
-    x1 = x0 + LINK_1_LENGTH*math.cos(math.radians(theta1))
-    y1 = y0 + LINK_1_LENGTH*math.sin(math.radians(theta1))
+    # To get from p0 to p1, we add the distance that link 1 gives us to 0
+    x1 = x0 + LINK_1_LENGTH*math.cos(math.radians(joint_angle_1))
+    y1 = y0 + LINK_1_LENGTH*math.sin(math.radians(joint_angle_1))
     
     # Do essentially the same thing to get to p2 from p1
-    theta2 = theta1 + joint_angle_2 + JOINT_2_OFFSET # Same as above except that this angle is referenced w.r.t. joint 1, so we need to add theta1 as well
-    x2 = x1 + LINK_2_LENGTH*math.cos(math.radians(theta2))
-    y2 = y1 + LINK_2_LENGTH*math.sin(math.radians(theta2))
+    theta12 = joint_angle_1 + joint_angle_2  # Same as above except that this angle is referenced w.r.t. joint 1, so we need to add theta1 as well
+    x2 = x1 + LINK_2_LENGTH*math.cos(math.radians(theta12))
+    y2 = y1 + LINK_2_LENGTH*math.sin(math.radians(theta12))
     
     return x2, y2, x1, y1, x0, y0 # Return all of the joint positions to caller
 
 def inverse_kinematics(x, y):
-    x1 = x - BASE_X_OFFSET
-    y1 = y - BASE_Y_OFFSET
-    
-    c2 = (x1**2 + y1**2 - LINK_1_LENGTH**2 - LINK_2_LENGTH**2)/(2*LINK_1_LENGTH*LINK_2_LENGTH)
+    c2 = (x**2 + y**2 - LINK_1_LENGTH**2 - LINK_2_LENGTH**2)/(2*LINK_1_LENGTH*LINK_2_LENGTH)
     
     # For s2, we could take positive or negative here.
-    # We will take positive for "elbow down" configuration.
-    s2 = math.sqrt(1 - c2**2) 
+    # We will take negative for "elbow up" configuration.
+    s2 = -math.sqrt(1 - c2**2)
     
     psi2 = math.atan2(s2, c2)
-    psi1 = math.atan2(y1, x1) - math.atan2(LINK_2_LENGTH*s2, LINK_1_LENGTH + LINK_2_LENGTH*c2)
+    psi1 = math.atan2(y, x) - math.atan2(LINK_2_LENGTH*s2, LINK_1_LENGTH + LINK_2_LENGTH*c2)
     
-    joint_angle_1 = math.degrees(psi1 - JOINT_1_OFFSET)
-    joint_angle_2 = math.degrees(psi2 - JOINT_2_OFFSET)
+    joint_angle_1 = math.degrees(psi1)
+    joint_angle_2 = math.degrees(psi2)
     
     return joint_angle_1, joint_angle_2
 
@@ -66,27 +62,20 @@ def is_in_workspace(x, y):
            dist_from_center >= (LINK_1_LENGTH - LINK_2_LENGTH)
 
 
-
 class HarpBot:
-
-    # The speed at which the robot can move (m/s)
-    
-
-    def __init__(self):
+    def __init__(self, port='COM4'):
         """
-        Creates a new instance of HarpBot
+        Creates a new instance of HarpBot. 
+        
+        HarpBot is a real live drawing robot that holds a pen and follows commands to draw pictures.
+        If the robot is detected on port, the real robot should follow the commands.
+        At any rate, this class will animate the robot moving around and drawing using MatPlotLib.
         """
 
         # Initialize robot to zero position
         self.joint_angles = [0, 0]
-
-        # Position of the pen
-        [px, py, _, _, _, _] = forward_kinematics(self.joint_angles[0], self.joint_angles[1])
-        self.xpos = px
-        self.ypos = py
-    
-        # Initialize a HarpPlot instance
-        self.hp = HarpPlot.HarpPlot()
+        self.xpos = HOME_X
+        self.ypos = HOME_Y
 
         self.is_pen_down = True # When pen is down, the robot will draw as it moves
 
@@ -94,35 +83,37 @@ class HarpBot:
         # When false, HarpBlot will only plot its motion. When True, it will issue serial
         # commands to control hardware
         self.robot_enabled = False
-
+        
+        # Try to initialize the HarpBotSerial object (which sends/recieves serial commands).
+        # If it fails, run HarpBot in simulation only mode. If successful, just control the robot with no plot.
+        self.hb_ser = HarpBotSerial.HarpBotSerial(port=port)
+        
+        # Check if connection was successful
+        if self.hb_ser.connected:
+            self.robot_enabled = True
+            print('Robot successfully connected and enabled for HarpBot')
+        else:
+            print('Robot could not be enabled for HarpBot. Running in simulation only mode.')
+        
+        # The robot didn't connect, want to run in simulation mode
+        self.hp = HarpPlot.HarpPlot()
         # The lines used to draw the robot arm
         self.robot_lines = []
-
-
-    def attach_robot(self):
-        """
-        Call this function to tell HarpBot that it is connected to actual robot hardware
-        """
-        self.robot_enabled = True
-
-    def send_serial_command(self):
-        """
-        Sends the robot's current configuration to the Arduino over serial.
-        """
-        # TODO
-        # Variables to use: self.xpos, self.ypos, self.joint_angles
-        pass
-
+        # Go ahead and draw the workspace
+        self.draw_workspace()
+        
     def pen_up(self):
         """ Lifts the pen"""
         self.is_pen_down = False
-
+        if self.robot_enabled:
+          self.hb_ser.pen_up()
+          
     def pen_down(self):
         """ Sets the pen down """
         self.is_pen_down = True
-
-
-    
+        if self.robot_enabled:
+          self.hb_ser.pen_down()
+          
     def draw_scene(self):
         self.draw_workspace()
         self.clear_robot()
@@ -169,12 +160,11 @@ class HarpBot:
         Moves the robot to a given x,y coordinate
         """
         
-        # Fist check to make sure the point is in the workspace
+        # First check to make sure the point is in the workspace
         if not is_in_workspace(x, y): 
             # Not in the valid workspace
             print("Cannot move to out-of-range point (" + str(x) + ", " + str(y) + ")")
             return
-
 
         # Distance between the new point and the current one
         dx = x - self.xpos
@@ -194,67 +184,38 @@ class HarpBot:
             # Recursively call goto_point until we get to our destination
             self.goto_point(x, y)
         
-        
-
     def set_position(self, x, y):
         """
         Sets the position to the given x,y coordinate
         """
 
-        if is_in_workspace(x, y):
-
-            # If the pen is down, then draw a line from the previous point to the new point
-            if self.is_pen_down:
-                self.hp.add_line((self.xpos, self.ypos), (x,y), \
-                                line_color = 'b', marker_color = 'b', marker_size=1)
-            
-            # If the point is in the accessible work space, set the position!
-            self.xpos = x
-            self.ypos = y
-
-            # Compute the joint angles
-            [j1, j2] = inverse_kinematics(x,y)
-            self.joint_angles = [j1, j2]
-
-            
-
-            self.draw_scene()
-
-            if self.robot_enabled:
-                self.send_serial_command()
-        else:
-            # Not in the valid workspace
+        if not is_in_workspace(x, y):
             print("Cannot move to out-of-range point (" + str(x) + ", " + str(y) + ")")
-
-
-    def animate_robot():        
-        t_max = 5
-        t0 = time.time()
+            return
         
-        pts = None
+        # If the robot is enabled, then move the robot, otherwise just do plotting
+        if self.robot_enabled:
+            self.hb_ser.goto(x, y)
         
-        while(True):
-            hp.reset_figure()
-            t = time.time()
-            
-            q1 = math.degrees(t)
-            q2 = -3*math.degrees(t)
-            
-            pt = draw_robot(q1, q2, hp)
-            
-            if pts is None:
-                pts = pt
-            else:
-                pts = np.vstack((pts, pt))
-                hp.add_point(pts[:,0], pts[:,1], color='blue', size=3)
-            
-            hp.draw()
-            
-            if (t - t0) > t_max:
-                break
+        self.draw_scene()
+        # If the pen is down, then draw a line from the previous point to the new point
+        if self.is_pen_down:
+            self.hp.add_line((self.xpos, self.ypos), (x,y), \
+                            line_color = 'b', marker_color = 'b', marker_size=1)
+        
+        # If the point is in the accessible work space, set the position!
+        self.xpos = x
+        self.ypos = y
+
+        # Compute the joint angles
+        [j1, j2] = inverse_kinematics(x,y)
+        self.joint_angles = [j1, j2]
+        
+    def go_home(self):
+        self.pen_up()
+        self.goto_point(HOME_X, HOME_Y)
       
     def draw_workspace(self):
-
         # Draw the limits of the robot
         inner_radius = LINK_1_LENGTH - LINK_2_LENGTH
         outer_radius = LINK_1_LENGTH + LINK_2_LENGTH
@@ -262,9 +223,9 @@ class HarpBot:
         self.hp.circle(0, 0, outer_radius, color='r')
 
         # Draw the placement of the paper
-        paper_x1 = -PAPER_WIDTH / 2
+        paper_x1 = PAPER_X_OFFSET
         paper_y1 = PAPER_Y_OFFSET
-        paper_x2 = PAPER_WIDTH / 2
+        paper_x2 = PAPER_X_OFFSET + PAPER_WIDTH
         paper_y2 = PAPER_Y_OFFSET + PAPER_HEIGHT
 
         self.hp.line(paper_x1, paper_y1, paper_x1, paper_y2, line_color='gray')
@@ -276,16 +237,16 @@ class HarpBot:
 
 
 if __name__ == "__main__":
-    bot = HarpBot()
-    bot.draw_workspace()
-
-    bot.pen_up()
-    bot.goto_point(100, 80)
+    bot = HarpBot('COM4')
+    
     bot.pen_down()
-    bot.goto_point(-100, 80)
-    bot.goto_point(-100, 130)
-    bot.goto_point(100, 130)
-    bot.goto_point(100, 80)
     bot.pen_up()
-    bot.goto_point(-100, 80)
-    bot.goto_point(-180, 0)
+    bot.goto_point(100, 100)
+    bot.pen_down()
+    bot.goto_point(100, 200)
+    bot.goto_point(0, 200)
+    bot.goto_point(0, 100)
+    bot.goto_point(100, 100)
+    bot.pen_up()
+    bot.go_home()
+    

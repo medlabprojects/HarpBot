@@ -1,8 +1,6 @@
-import math
 import time
 
 import serial
-import numpy as np
 
 
 def xy_to_gcode(x, y):
@@ -15,15 +13,23 @@ PEN_DOWN_GCODE = b'G0 Z-5\r\n'
 
 class HarpBotSerial:
   def __init__(self, port='COM4', baudrate=115200):
-    self.ser = serial.Serial(port=port, 
-                             baudrate=baudrate,
-                             timeout=3)
+    self.connected = False
     
-    self.pen_down()
-    self.pen_up()
+    # Now try to connect to the robot. User will be able to detect if it worked based on on self.connected
+    try:
+      self.ser = serial.Serial(port=port, baudrate=baudrate, timeout=3)
+      if self.ser.is_open:
+        self.connected = True
+    except:
+      pass
     
-    assert(self.ser.is_open), "Connection to robot failed on port {} with baudrate {}.".format(port, baudrate)
-  
+    if self.connected:
+      print("Connected to HarpBot on port {} with baudrate {}.".format(port, baudrate))
+      self.pen_down()
+      self.pen_up()
+    else:
+      print("Connection to HarpBot failed on port {} with baudrate {}.".format(port, baudrate))
+    
   def goto(self, x, y):
     self.ser.write(xy_to_gcode(x, y))
     self.wait_for_ok()
@@ -39,49 +45,25 @@ class HarpBotSerial:
   def wait_for_ok(self):
     line = self.ser.readline()
     print(line)
+    #time.sleep(0.01)
+    
     
 if __name__ == "__main__":
-  import keyboard
+  hb = HarpBotSerial()
   
-  hbs = HarpBotSerial()
-  x = 310
-  y = 0
+  # Toggle pen up and down twice
+  hb.pen_down()
+  hb.pen_up()
+  hb.pen_down()
+  hb.pen_up()
   
-  delta = 1
+  # Move in a square pattern
+  hb.goto(100, 100)
+  hb.goto(100, 200)
+  hb.goto(0, 200)
+  hb.goto(0, 100)
+  hb.goto(100, 100)
   
-  hbs.pen_up()
+  # Go back to home
+  hb.goto(305, 0)
   
-  print('Use the arrow keys to move the robot around. Press spacebar to toggle the pen up and down. Press esc to stop.')
-  
-  while True:  # making a loop
-    xy_changed = False
-    
-    if keyboard.is_pressed('left'):
-      x = x - delta
-      xy_changed = True
-      
-    if keyboard.is_pressed('right'):
-      x = x + delta
-      xy_changed = True
-      
-    if keyboard.is_pressed('up'):
-      y = y + delta
-      xy_changed = True
-      
-    if keyboard.is_pressed('down'):
-      y = y - delta
-      xy_changed = True
-    
-    if xy_changed:
-      hbs.goto(x, y)
-      print('x: {}, y: {}'.format(x, y))
-      
-    if keyboard.is_pressed('u'):
-      hbs.pen_up()
-    elif keyboard.is_pressed('d'):
-      hbs.pen_down()
-    
-    if keyboard.is_pressed('esc'):
-      break
-      
-    time.sleep(0.01)
