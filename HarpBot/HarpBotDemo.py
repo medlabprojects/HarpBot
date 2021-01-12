@@ -8,8 +8,8 @@ hbs = HarpBotSerial.HarpBotSerial()
 x = 305
 y = 0
 
-delta = 3
-  
+delta = 1
+
 hbs.pen_up()
   
 print('Use the arrow keys to move the robot around. Press spacebar to toggle the pen up and down. Press esc to stop.')
