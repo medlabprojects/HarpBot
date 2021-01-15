@@ -100,7 +100,7 @@ class HarpBot:
         # The lines used to draw the robot arm
         self.robot_lines = []
         # Go ahead and draw the workspace
-        self.draw_workspace()
+        #self.draw_workspace()
         
     def pen_up(self):
         """ Lifts the pen"""
@@ -115,7 +115,7 @@ class HarpBot:
           self.hb_ser.pen_down()
           
     def draw_scene(self):
-        self.draw_workspace()
+        #self.draw_workspace()
         self.clear_robot()
         self.draw_robot()
 
