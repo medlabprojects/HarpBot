@@ -25,11 +25,11 @@ def LoadPhrases(file_list):
                        all(x.isalpha() or x.isspace() for x in category) and \
                        len(phrase.strip()) <= MAX_PHRASE_LENGTH:
                         phrase_category_pairs.append((category.strip(), phrase.lower().strip()))
-                        
+
                 except Exception as e:
                     print("Skipping line " + str(line_num) + " due to error:")
                     print(e)
-                
+
                 line_num = line_num + 1
 
     print("Loaded " + str(len(phrase_category_pairs)) + " phrases")
@@ -67,3 +67,5 @@ def GetLetters(phrase):
             letters.append(letter.lower())
 
     return sorted(letters)
+
+def DrawString(bot, s, x, y, width):

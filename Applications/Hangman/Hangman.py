@@ -8,8 +8,6 @@ import HangmanLib as HL
 from HarpBot import HarpBot
 
 
-###### SET TO TRUE WHEN CONNECTED TO REAL ROBOT ######
-ROBOT_ENABLED = False
 WRONG_GUESSES_TO_LOSE = 5 # TODO - Set to however many pieces of the man are drawn
 
 
@@ -85,18 +83,13 @@ def setup_game(bot, category, phrase):
 
     # Draw the guessing table
     draw_guessing_table(bot)
-    
+
     print("Setup complete!")
     print("-" * 40)
 
 ################################ play_game ##########################
 # Loop to run entire game
-def play_game():
-    bot = HarpBot()
-    
-    if ROBOT_ENABLED:
-        # Enable the robot serial communication
-        bot.robot_enabled = True
+def play_game(bot):
 
     # Choose a random category/phrase pair from the list
     category, phrase = HL.RandomPhrase(category_phrase_list)
@@ -111,15 +104,15 @@ def play_game():
     # Variables
     guessed_letters = []  # The guessed letters so far
     incorrect_guesses = 0 # The number of incorrect guesses
-    
+
     while not game_over:
         print("_" * 30 + "\n")
         print(HL.Blankify(phrase, guessed_letters) + "\n") # Print the guessed word so far
         print("Category: " + category) # Print what the category is
         print("Guessed letters: " + str(guessed_letters)) # Print the guessed letters so far
         print("Wrong guesses: " + str(incorrect_guesses)) # Print the number of incorrect guesses so far
-        
-              
+
+
         ############## Guess a letter ##################
         letter = guess_letter().lower() # Ask the player to guess a letter. Make sure it's lowercase
 
@@ -133,7 +126,7 @@ def play_game():
         guessed_letters.append(letter) # Add guess to the list
 
 
-        ############# Determine if guess is right or wrong #############        
+        ############# Determine if guess is right or wrong #############
         if not letter in phrase_letters:
             # Wrong guess
             incorrect_guesses = incorrect_guesses + 1
@@ -189,6 +182,7 @@ def ask_yn(question):
 
 
 ### MAIN LOOP ###
+bot = HarpBot()
 is_first_game = True
 while True:
     ### If the player has already played a game, ask if they want to play again
@@ -199,8 +193,9 @@ while True:
         else:
             # Prompt user to set up paper
             press_enter = input("Please set up a new sheet of paper, and press enter.")
-    play_game()    
+    bot.pen_up()
+    bot.goto_point(305, 0)
+    play_game(bot)
     is_first_game = False
 
 print("Bye!")
-    
