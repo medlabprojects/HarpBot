@@ -68,4 +68,21 @@ def GetLetters(phrase):
 
     return sorted(letters)
 
-def DrawString(bot, s, x, y, width):
+def DrawLetter(bot, c, x, y, width):
+
+    # TODO: populate this lookup table
+    print("DrawLetter()")
+
+def DrawString(bot, s, x, y, container_width):
+
+    print("DrawString()")
+    num_chars = len(s)
+    num_seps = num_chars - 1
+    sep_width = 5 # mm
+
+    # letter spacing
+    letter_width = (container_width - (num_seps*sep_width))/num_chars
+
+    for ii in range(len(s)):
+        xi = x + ii*(letter_width + sep_width)
+        DrawLetter(bot, s(ii), xi, y, letter_width)

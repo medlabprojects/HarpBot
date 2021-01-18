@@ -7,8 +7,12 @@ sys.path.append("../../Harpbot")
 import HangmanLib as HL
 from HarpBot import HarpBot
 
+PAPER_WIDTH = 279.4
+PAPER_HEIGHT = 215.9
+PAPER_X_OFFSET = -87 # How far from the robot the left edge of the paper is placed (mm)
+PAPER_Y_OFFSET = 66.1
 
-WRONG_GUESSES_TO_LOSE = 5 # TODO - Set to however many pieces of the man are drawn
+WRONG_GUESSES_TO_LOSE = 6 # TODO - Set to however many pieces of the man are drawn
 
 
 ######## SET THE INPUT FILES THAT YOU WANT TO PLAY WITH HERE ########
@@ -27,14 +31,62 @@ category_phrase_list = HL.LoadPhrases(phrase_files)
 def draw_category(bot, category):
     ## Student code here! ##
     print("Drawing category: " + category)
+    c_x = -150.0;
+    c_y = 200.0;
+    c_w = 130.0;
+    c_h = 40.0;
+
+    bot.pen_up()
+    bot.goto_point(c_x + 0.0, c_y + 0.0)
+    bot.pen_down()
+    bot.goto_point(c_x + 1.0*c_w, c_y + 0.0)
+    bot.goto_point(c_x + 1.0*c_w, c_y + 1.0*c_h)
+    bot.goto_point(c_x + 0.0, c_y + 1.0*c_h)
+    bot.goto_point(c_x + 0.0, c_y + 0.0)
+    bot.pen_up()
+
+    # TODO: draw the word "category" on top of box
+    # TODO: draw category in box using DrawString()
+
+    bot.go_home()
 
 def draw_blanks(bot, phrase):
     ## Student code here! ##
     print("Drawing blanks!")
 
-def draw_empty_hangman(bot):
+
+
+def draw_gallows(bot):
     ## Student code here! ##
+
     print("Drawing hangman!")
+
+    g_x = 25.0
+    g_y = 25.0
+    g_h = 240.0
+    g_w = 150.0
+
+    bot.pen_up()
+    bot.goto_point(g_x + 0.0*g_w, g_y + 0.0*g_h)    # 1
+    bot.pen_down()
+    bot.goto_point(g_x + 0.3*g_w, g_y + 0.2*g_h)    # 2
+    bot.goto_point(g_x + 0.3*g_w, g_y + 1.0*g_h)    # 3
+    bot.goto_point(g_x + 0.8*g_w, g_y + 1.0*g_h)    # 4
+    bot.goto_point(g_x + 0.8*g_w, g_y + 0.9*g_h)    # 5
+    bot.goto_point(g_x + 0.4*g_w, g_y + 0.9*g_h)    # 6
+    bot.goto_point(g_x + 0.4*g_w, g_y + 0.2*g_h)    # 7
+    bot.goto_point(g_x + 0.7*g_w, g_y + 0.0*g_h)    # 8
+    bot.goto_point(g_x + 0.6*g_w, g_y + 0.0*g_h)    # 9
+    bot.goto_point(g_x + 0.35*g_w, g_y + 0.15*g_h)  # 10
+    bot.goto_point(g_x + 0.1*g_w, g_y + 0.0*g_h)    # 11
+    bot.goto_point(g_x + 0.0*g_w, g_y + 0.0*g_h)    # 12
+    bot.pen_up()
+    bot.goto_point(g_x + 0.8*g_w, g_y + 0.9*g_h)    # 13
+    bot.pen_down()
+    bot.goto_point(g_x + 0.8*g_w, g_y + 0.8*g_h)    # 14 -- noose location
+    bot.pen_up()
+    bot.go_home()
+
 
 def draw_guessing_table(bot):
     ## Student code here! ##
@@ -42,6 +94,7 @@ def draw_guessing_table(bot):
 
 def correct_guess(bot, letter, letter_position_list):
     ## Student code here! ##
+
     print("Correct guess!")
     print("Letter: " + letter)
     print("Positions: " + str(letter_position_list))
@@ -79,7 +132,7 @@ def setup_game(bot, category, phrase):
     draw_blanks(bot, phrase)
 
     # Draw an empty hangman
-    draw_empty_hangman(bot)
+    draw_gallows(bot)
 
     # Draw the guessing table
     draw_guessing_table(bot)
@@ -193,8 +246,7 @@ while True:
         else:
             # Prompt user to set up paper
             press_enter = input("Please set up a new sheet of paper, and press enter.")
-    bot.pen_up()
-    bot.goto_point(305, 0)
+    bot.go_home()
     play_game(bot)
     is_first_game = False
 
