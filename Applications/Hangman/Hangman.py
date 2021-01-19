@@ -6,6 +6,7 @@ import sys
 sys.path.append("../../Harpbot")
 import HangmanLib as HL
 from HarpBot import HarpBot
+from numpy import genfromtxt
 
 PAPER_WIDTH = 279.4
 PAPER_HEIGHT = 215.9
@@ -36,6 +37,7 @@ def draw_category(bot, category):
     c_w = 130.0;
     c_h = 40.0;
 
+    # Draws rectangle
     bot.pen_up()
     bot.goto_point(c_x + 0.0, c_y + 0.0)
     bot.pen_down()
@@ -45,10 +47,19 @@ def draw_category(bot, category):
     bot.goto_point(c_x + 0.0, c_y + 0.0)
     bot.pen_up()
 
+    # Draws cloud -- currently shades the cloud - coords are not adjacent
+    # cloud_coords = genfromtxt('image_outlines/cloud_coords.csv', delimiter=',')
+    # bot.pen_up()
+    # for ii in range(len(cloud_coords)):
+    #     bot.goto_point(c_x + cloud_coords[ii,0]*c_w, c_y + cloud_coords[ii,1]*c_h)
+    #     if ii == 0:
+    #         bot.pen_down()
+    #     if ii == len(cloud_coords):
+    #         bot.pen_up()
+
+
     # TODO: draw the word "category" on top of box
     # TODO: draw category in box using DrawString()
-
-    bot.go_home()
 
 def draw_blanks(bot, phrase):
     ## Student code here! ##
