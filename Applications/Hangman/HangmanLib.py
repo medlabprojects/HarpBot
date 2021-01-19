@@ -86,3 +86,34 @@ def DrawString(bot, s, x, y, container_width):
     for ii in range(len(s)):
         xi = x + ii*(letter_width + sep_width)
         DrawLetter(bot, s(ii), xi, y, letter_width)
+
+def DrawHangman(bot, num_wrong_guesses):
+
+    parts_list = ['head', 'larm', 'rarm', 'lleg', 'rleg']
+    if num_wrong_guesses == 1:
+        DrawHead()
+    elif num_wrong_guesses == 2:
+        DrawSpine()
+    elif num_wrong_guesses == 3:
+        DrawLArm()
+    elif num_wrong_guesses == 4:
+        DrawRArm()
+    elif num_wrong_guesses == 5:
+        DrawLLeg()
+    elif num_wrong_guesses == 6:
+        DrawRLeg()
+    else:
+        # don't draw
+
+###### HANGMAN DRAWING FUNCS ######
+def DrawHead():
+
+def DrawLArm():
+
+def DrawRArm():
+
+def DrawLLeg():
+
+def DrawRLeg():
+
+def DrawSpine():
