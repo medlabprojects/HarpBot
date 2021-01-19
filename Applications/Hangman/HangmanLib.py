@@ -52,16 +52,20 @@ def RandomPhrase(phrase_data):
 def Blankify(phrase, guessed_letters):
     # Returns a string with any unguessed letters as blanks
     blanked_str = ""
+    blanked_str_nospace =""
     for c in phrase:
         if c.isalpha():
             if c in guessed_letters:
-                blanked_str = blanked_str + c + " "
+                blanked_str_nospace += c
+                blanked_str += c + " "
             else:
-                blanked_str = blanked_str + "_ "
+                blanked_str_nospace += "_"
+                blanked_str += "_ "
         else: # Non-alpha character, such as a space.
-            blanked_str = blanked_str + c + " "
+            blanked_str_nospace += c
+            blanked_str += c + " "
 
-    return blanked_str.strip()
+    return blanked_str.strip(), blanked_str_nospace.strip()
 
 
 def GetLetters(phrase):
@@ -113,13 +117,13 @@ def DrawString(bot, s, x, y, container_width):
     print("DrawString()")
     num_chars = len(s)
     num_seps = num_chars - 1
-    sep_width = 5 # mm
 
-    # letter spacing
-    letter_width = (container_width - (num_seps*sep_width))/num_chars
+    full_width = container_width / num_chars
+    sep_width = 0.2*full_width
+    letter_width = full_width - sep_width
 
     for ii in range(len(s)):
-        xi = x + ii*(letter_width + sep_width)
+        xi = x + ii*(full_width)
         DrawLetter(bot, s[ii], xi, y, letter_width)
 
 
@@ -142,16 +146,16 @@ def DrawHangman(bot, num_wrong_guesses):
 ###### HANGMAN DRAWING FUNCTIONS ######
 def DrawHead():
   print('Drawing Head')
-  
+
 def DrawLArm():
   print('Drawing Left Arm')
-  
+
 def DrawRArm():
   print('Drawing Right Arm')
-  
+
 def DrawLLeg():
   print('Drawing Left Leg')
-  
+
 def DrawRLeg():
   print('Drawing Right Leg')
 

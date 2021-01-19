@@ -27,31 +27,31 @@ PAPER_Y_OFFSET = 66.1 # How far in front of the robot the bottom edge of the pap
 def forward_kinematics(joint_angle_1, joint_angle_2):
     x0 = 0
     y0 = 0
-    
+
     # To get from p0 to p1, we add the distance that link 1 gives us to 0
     x1 = x0 + LINK_1_LENGTH*math.cos(math.radians(joint_angle_1))
     y1 = y0 + LINK_1_LENGTH*math.sin(math.radians(joint_angle_1))
-    
+
     # Do essentially the same thing to get to p2 from p1
     theta12 = joint_angle_1 + joint_angle_2  # Same as above except that this angle is referenced w.r.t. joint 1, so we need to add theta1 as well
     x2 = x1 + LINK_2_LENGTH*math.cos(math.radians(theta12))
     y2 = y1 + LINK_2_LENGTH*math.sin(math.radians(theta12))
-    
+
     return x2, y2, x1, y1, x0, y0 # Return all of the joint positions to caller
 
 def inverse_kinematics(x, y):
     c2 = (x**2 + y**2 - LINK_1_LENGTH**2 - LINK_2_LENGTH**2)/(2*LINK_1_LENGTH*LINK_2_LENGTH)
-    
+
     # For s2, we could take positive or negative here.
     # We will take negative for "elbow up" configuration.
     s2 = -math.sqrt(1 - c2**2)
-    
+
     psi2 = math.atan2(s2, c2)
     psi1 = math.atan2(y, x) - math.atan2(LINK_2_LENGTH*s2, LINK_1_LENGTH + LINK_2_LENGTH*c2)
-    
+
     joint_angle_1 = math.degrees(psi1)
     joint_angle_2 = math.degrees(psi2)
-    
+
     return joint_angle_1, joint_angle_2
 
 def is_in_workspace(x, y):
@@ -65,8 +65,8 @@ def is_in_workspace(x, y):
 class HarpBot:
     def __init__(self, port='COM4'):
         """
-        Creates a new instance of HarpBot. 
-        
+        Creates a new instance of HarpBot.
+
         HarpBot is a real live drawing robot that holds a pen and follows commands to draw pictures.
         If the robot is detected on port, the real robot should follow the commands.
         At any rate, this class will animate the robot moving around and drawing using MatPlotLib.
@@ -83,37 +83,37 @@ class HarpBot:
         # When false, HarpBlot will only plot its motion. When True, it will issue serial
         # commands to control hardware
         self.robot_enabled = False
-        
+
         # Try to initialize the HarpBotSerial object (which sends/recieves serial commands).
         # If it fails, run HarpBot in simulation only mode. If successful, just control the robot with no plot.
         self.hb_ser = HarpBotSerial.HarpBotSerial(port=port)
-        
+
         # Check if connection was successful
         if self.hb_ser.connected:
             self.robot_enabled = True
             print('Robot successfully connected and enabled for HarpBot')
         else:
             print('Robot could not be enabled for HarpBot. Running in simulation only mode.')
-        
+
         # The robot didn't connect, want to run in simulation mode
         self.hp = HarpPlot.HarpPlot()
         # The lines used to draw the robot arm
         self.robot_lines = []
         # Go ahead and draw the workspace
-        #self.draw_workspace()
-        
+        self.draw_workspace()
+
     def pen_up(self):
         """ Lifts the pen"""
         self.is_pen_down = False
         if self.robot_enabled:
           self.hb_ser.pen_up()
-          
+
     def pen_down(self):
         """ Sets the pen down """
         self.is_pen_down = True
         if self.robot_enabled:
           self.hb_ser.pen_down()
-          
+
     def draw_scene(self):
         #self.draw_workspace()
         self.clear_robot()
@@ -126,26 +126,26 @@ class HarpBot:
             #del line
 
         self.robot_lines = []
-        
+
     def draw_robot(self):
         # First get the points defining where the robot is in space
         x2, y2, x1, y1, x0, y0 = forward_kinematics(self.joint_angles[0], self.joint_angles[1])
-        
+
         # First I want to draw a little base triangle using lines and points
         triangle_size = 20
-        l1 = self.hp.add_line((x0, y0), 
-                    (x0 + triangle_size, y0 - triangle_size), 
+        l1 = self.hp.add_line((x0, y0),
+                    (x0 + triangle_size, y0 - triangle_size),
                     line_width=2, marker_color='k', marker_size=1)
-        l2 = self.hp.add_line((x0 + triangle_size, y0 - triangle_size), 
-                    (x0 - triangle_size, y0 - triangle_size), 
+        l2 = self.hp.add_line((x0 + triangle_size, y0 - triangle_size),
+                    (x0 - triangle_size, y0 - triangle_size),
                     line_width=2, marker_color='k', marker_size=1)
-        l3 = self.hp.add_line((x0 - triangle_size, y0 - triangle_size), 
-                    (x0, y0), 
+        l3 = self.hp.add_line((x0 - triangle_size, y0 - triangle_size),
+                    (x0, y0),
                     line_width=2, marker_color='k', marker_size=1)
-        l4 = self.hp.add_line((x0 - 2*triangle_size, y0 - triangle_size), 
-                    (x0 + 2*triangle_size, y0 - triangle_size), 
+        l4 = self.hp.add_line((x0 - 2*triangle_size, y0 - triangle_size),
+                    (x0 + 2*triangle_size, y0 - triangle_size),
                     line_width=2, marker_color='k', marker_size=1)
-                    
+
         # Now just draw a line segment for each of the two robot links
         l5 = self.hp.add_line((x0,y0), (x1,y1), line_color='orange', line_width=4, marker_color='red', marker_size=10)
         l6 = self.hp.add_line((x1,y1), (x2,y2), line_color='orange', line_width=4, marker_color='red', marker_size=10)
@@ -154,14 +154,14 @@ class HarpBot:
 
         # Add the line segments we drew to robot_lines
         self.robot_lines.extend([l1, l2, l3, l4, l5, l6])
-        
+
     def goto_point(self, x, y):
         """
         Moves the robot to a given x,y coordinate
         """
-        
+
         # First check to make sure the point is in the workspace
-        if not is_in_workspace(x, y): 
+        if not is_in_workspace(x, y):
             # Not in the valid workspace
             print("Cannot move to out-of-range point (" + str(x) + ", " + str(y) + ")")
             return
@@ -183,7 +183,7 @@ class HarpBot:
 
             # Recursively call goto_point until we get to our destination
             self.goto_point(x, y)
-        
+
     def set_position(self, x, y):
         """
         Sets the position to the given x,y coordinate
@@ -192,17 +192,17 @@ class HarpBot:
         if not is_in_workspace(x, y):
             print("Cannot move to out-of-range point (" + str(x) + ", " + str(y) + ")")
             return
-        
+
         # If the robot is enabled, then move the robot, otherwise just do plotting
         if self.robot_enabled:
             self.hb_ser.goto(x, y)
-        
+
         self.draw_scene()
         # If the pen is down, then draw a line from the previous point to the new point
         if self.is_pen_down:
             self.hp.add_line((self.xpos, self.ypos), (x,y), \
                             line_color = 'b', marker_color = 'b', marker_size=1)
-        
+
         # If the point is in the accessible work space, set the position!
         self.xpos = x
         self.ypos = y
@@ -210,11 +210,11 @@ class HarpBot:
         # Compute the joint angles
         [j1, j2] = inverse_kinematics(x,y)
         self.joint_angles = [j1, j2]
-        
+
     def go_home(self):
         self.pen_up()
         self.goto_point(HOME_X, HOME_Y)
-      
+
     def draw_workspace(self):
         # Draw the limits of the robot
         inner_radius = LINK_1_LENGTH - LINK_2_LENGTH
@@ -238,7 +238,7 @@ class HarpBot:
 
 if __name__ == "__main__":
     bot = HarpBot('COM4')
-    
+
     bot.pen_down()
     bot.pen_up()
     bot.goto_point(100, 100)
@@ -249,4 +249,3 @@ if __name__ == "__main__":
     bot.goto_point(100, 100)
     bot.pen_up()
     bot.go_home()
-    

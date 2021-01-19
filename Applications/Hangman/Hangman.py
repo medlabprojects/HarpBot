@@ -35,37 +35,53 @@ category_phrase_list = HL.LoadPhrases(phrase_files)
 def draw_category(bot, category):
     ## Student code here! ##
     print("Drawing category: " + category)
-    c_x = -150.0;
-    c_y = 200.0;
-    c_w = 130.0;
-    c_h = 40.0;
+    c_x = 50.0
+    c_y = 175.0
+    c_w = 150.0
+    c_h = 100.0
+    # c_h = 20.0;
 
     # Draws rectangle
-    bot.pen_up()
-    bot.goto_point(c_x + 0.0, c_y + 0.0)
-    bot.pen_down()
-    bot.goto_point(c_x + 1.0*c_w, c_y + 0.0)
-    bot.goto_point(c_x + 1.0*c_w, c_y + 1.0*c_h)
-    bot.goto_point(c_x + 0.0, c_y + 1.0*c_h)
-    bot.goto_point(c_x + 0.0, c_y + 0.0)
-    bot.pen_up()
-
-    # Draws cloud -- currently shades the cloud - coords are not adjacent
-    # cloud_coords = genfromtxt('image_outlines/cloud_coords.csv', delimiter=',')
     # bot.pen_up()
-    # for ii in range(len(cloud_coords)):
-    #     bot.goto_point(c_x + cloud_coords[ii,0]*c_w, c_y + cloud_coords[ii,1]*c_h)
-    #     if ii == 0:
-    #         bot.pen_down()
-    #     if ii == len(cloud_coords):
-    #         bot.pen_up()
+    # bot.goto_point(c_x + 0.0, c_y + 0.0)
+    # bot.pen_down()
+    # bot.goto_point(c_x + 1.0*c_w, c_y + 0.0)
+    # bot.goto_point(c_x + 1.0*c_w, c_y + 1.0*c_h)
+    # bot.goto_point(c_x + 0.0, c_y + 1.0*c_h)
+    # bot.goto_point(c_x + 0.0, c_y + 0.0)
+    # bot.pen_up()
+
+
+
+    # Draws cloud
+    cloud_coords = genfromtxt('image_outlines/cloud_coords.csv', delimiter=',')
+    bot.pen_up()
+    for ii in range(len(cloud_coords)):
+        bot.goto_point(c_x + cloud_coords[ii,0]*c_w, c_y + cloud_coords[ii,1]*c_h)
+        if ii == 0:
+            bot.pen_down()
+        if ii == len(cloud_coords):
+            bot.pen_up()
+
 
 
     # TODO: draw the word "category" on top of box
+    HL.DrawString(bot, "category", c_x + 10, c_y + 30, 75.0)
     # TODO: draw category in box using DrawString()
 
 def draw_blanks(bot, phrase):
     ## Student code here! ##
+    # define x,y origin, overall spacing
+    # call string = blankify(phrase)
+    # compute spacing given overall spacing
+    b_x = -75.0
+    b_y = 100.0
+    b_spacing = 20.0
+    # b_w = b_spacing * 20
+    b_w =250.0
+    _, blankified_phrase = HL.Blankify(phrase,[])
+    HL.DrawString(bot, blankified_phrase, b_x, b_y, b_w)
+
     print("Drawing blanks!")
 
 
@@ -74,10 +90,10 @@ def draw_gallows(bot):
 
     print("Drawing hangman!")
 
-    g_x = 25.0
-    g_y = 25.0
-    g_h = 240.0
-    g_w = 150.0
+    g_x = -75.0
+    g_y = 150.0
+    g_h = 100.0
+    g_w = 100.0
 
     bot.pen_up()
     bot.goto_point(g_x + 0.0*g_w, g_y + 0.0*g_h)    # 1
@@ -104,16 +120,29 @@ def draw_gallows(bot):
 def draw_guessing_table(bot):
     ## Student code here! ##
     print("Drawing guessing table!")
+    t_x = 75.0
+    t_y = 150.0
+    t_h = 25.0
+    t_w = 150.0
+
+    bot.pen_up()
+    bot.goto_point(t_x + 0.0*t_w, t_y + 0.0*t_h)    # 1
+    bot.pen_down()
+    bot.goto_point(t_x + 0.0*t_w, t_y + 1.0*t_h)    # 2
+    bot.goto_point(t_x + 1.0*t_w, t_y + 1.0*t_h)    # 3
+    bot.goto_point(t_x + 0.0*t_w, t_y + 1.0*t_h)    # 4
+    bot.goto_point(t_x + 0.0*t_w, t_y + 0.0*t_h)
+    bot.pen_up()
 
 
 def correct_guess(bot, letter, letter_position_list):
     # Draw letter in all of the spots listed in letter_position_list
-    
+
     for pos in letter_position_list:
         xi = 100 + pos*10
         yi = 100
         HL.DrawLetter(bot, letter, xi, yi, 15)
-    
+
     print("Correct guess!")
     print("Letter: " + letter)
     print("Positions: " + str(letter_position_list))
@@ -121,16 +150,16 @@ def correct_guess(bot, letter, letter_position_list):
 
 def wrong_guess(bot, letter, num_wrong_guesses):
     ## Student code here! ##
-    
+
     # Draw letter in guessing table
     HL.DrawLetter(bot, letter, 100, 100 - num_wrong_guesses*10, 15)
-    
+
     # Draw body part corresponding to num_wrong_guesses
     DrawHangman(bot, num_wrong_guesses)
-    
+
     if num_wrong_guesses == 1: HL.DrawHead()
     elif num_wrong_guesses == 2: HL.DrawSpine()
-    elif num_wrong_guesses == 3: HL.DrawLArm() 
+    elif num_wrong_guesses == 3: HL.DrawLArm()
     elif num_wrong_guesses == 4: HL.DrawRArm()
     elif num_wrong_guesses == 5: HL.DrawLLeg()
     elif num_wrong_guesses == 6: HL.DrawRLeg()
@@ -197,7 +226,8 @@ def play_game(bot):
 
     while not game_over:
         print("_" * 30 + "\n")
-        print(HL.Blankify(phrase, guessed_letters) + "\n") # Print the guessed word so far
+        msg, _ = HL.Blankify(phrase, guessed_letters)
+        print(msg + "\n") # Print the guessed word so far
         print("Category: " + category) # Print what the category is
         print("Guessed letters: " + str(guessed_letters)) # Print the guessed letters so far
         print("Wrong guesses: " + str(incorrect_guesses)) # Print the number of incorrect guesses so far

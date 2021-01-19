@@ -116,16 +116,16 @@ def draw_E(hb,x,y,s):
     hb.goto_point(x + s*1, y + s*0) #point 12/12
     hb.goto_point(x,y) #point number 1/12
     hb.pen_up() #all done!!
-    
+
 
 def draw_F(hb, x, y, s):
   # Move pen up before going to start position Point 1
   hb.pen_up()
   hb.goto_point(x + s*0, y + s*0) # Point 0
-  
+
   # Pen down to start the drawing
   hb.pen_down()
-  
+
   # Move in the correct waypoint motion
   hb.goto_point(x + s*0.25,  y + s*0) # Point 1
   hb.goto_point(x + s*0.25,  y + s*.75) # Point 2
@@ -137,7 +137,7 @@ def draw_F(hb, x, y, s):
   hb.goto_point(x + s*1,     y + s*1.5)#8
   hb.goto_point(x + s*0,     y + s*1.5)#9
   hb.goto_point(x + s*0,     y + s*0)#0
-  
+
   # Pen up before drawing next thing
   hb.pen_up()
 
@@ -146,10 +146,10 @@ def draw_G(hb, x, y, s):
   # Move pen up before going to start position Point 1
   hb.pen_up()
   hb.goto_point(x + s*0, y + s*0) # Point 0
-  
+
   # Pen down to start the drawing
   hb.pen_down()
-  
+
   # Move in the correct waypoint motion
   hb.goto_point(x + s*1,   y + s*0) # Point 1
   hb.goto_point(x + s*1,   y + s*.8) # Point 2
@@ -163,7 +163,7 @@ def draw_G(hb, x, y, s):
   hb.goto_point(x + s*1,     y + s*1.5)#9
   hb.goto_point(x + s*0,     y + s*1.5)#10
   hb.goto_point(x + s*0,     y + s*0)#0
-  
+
   # Pen up before drawing next thing
   hb.pen_up()
 
@@ -172,10 +172,10 @@ def draw_H(hb, x, y, s):
   # Move pen up before going to start position Point 1
   hb.pen_up()
   hb.goto_point(x + s*0, y + s*0) # Point 0
-  
+
   # Pen down to start the drawing
   hb.pen_down()
-  
+
   # Move in the correct waypoint motion
   hb.goto_point(x + s*.25,   y + s*0) # Point 1
   hb.goto_point(x + s*.25,   y + s*.5) # Point 2
@@ -189,7 +189,7 @@ def draw_H(hb, x, y, s):
   hb.goto_point(x + s*.25,     y + s*1.5)#9
   hb.goto_point(x + s*0,     y + s*1.5)#10
   hb.goto_point(x + s*0,     y + s*0)#0
-  
+
   # Pen up before drawing next thing
   hb.pen_up()
 
@@ -198,10 +198,10 @@ def draw_I(hb, x, y, s):
   # Move pen up before going to start position Point 1
   hb.pen_up()
   hb.goto_point(x + s*0.25, y + s*0) # Point 0
-  
+
   # Pen down to start the drawing
   hb.pen_down()
-  
+
   # Move in the correct waypoint motion
   hb.goto_point(x + s*0.25,   y + s*.25) # Point 1
   hb.goto_point(x + s*.65,   y + s*.25) # Point 2
@@ -215,7 +215,7 @@ def draw_I(hb, x, y, s):
   hb.goto_point(x + s*1.25,     y + s*.25)#9
   hb.goto_point(x + s*1.25,     y + s*0)#10
   hb.goto_point(x + s*0.25,     y + s*0)#0
-  
+
   # Pen up before drawing next thing
   hb.pen_up()
 
@@ -224,10 +224,10 @@ def draw_J(hb, x, y, s):
   # Move pen up before going to start position Point 1
   hb.pen_up()
   hb.goto_point(x + s*0, y + s*0) # Point 0
-  
+
   # Pen down to start the drawing
   hb.pen_down()
-  
+
   # Move in the correct waypoint motion
   hb.goto_point(x + s*.75,   y + s*0) # Point 1
   hb.goto_point(x + s*.75,   y + s*1.25) # Point 2
@@ -241,7 +241,7 @@ def draw_J(hb, x, y, s):
   hb.goto_point(x + s*.25,     y + s*.5)#9
   hb.goto_point(x + s*0,     y + s*.5)#10
   hb.goto_point(x + s*0,     y + s*0)#0
-  
+
   # Pen up before drawing next thing
   hb.pen_up()
 
@@ -250,10 +250,10 @@ def draw_K(hb, x, y, s):
   # Move pen up before going to start position Point 1
   hb.pen_up()
   hb.goto_point(x + s*0, y + s*0) # Point 1
-  
+
   # Pen down to start the drawing
   hb.pen_down()
-  
+
   # Move in the correct waypoint motion
   hb.goto_point(x + s*.25,   y + s*0) # Point 2
   hb.goto_point(x + s*.25,   y + s*0.5) # Point 3
@@ -268,16 +268,16 @@ def draw_K(hb, x, y, s):
   hb.goto_point(x + s*0,     y + s*0)
 
   hb.pen_up()
-  
+
 
 def draw_L (hb, x, y, s):
   # Move pen up before going to start position Point
   hb.pen_up()
   hb.goto_point(x + s*0, y + s*0) # Point 1
-  
+
   # Pen down to start the drawing
   hb.pen_down()
-  
+
   # Move in the correct waypoint motion
   hb.goto_point(x + s*0,    y + s*1.5) # Point 2
   hb.goto_point(x + s*.3,   y + s*1.5) # Point 3
@@ -286,16 +286,16 @@ def draw_L (hb, x, y, s):
   hb.goto_point(x + s*1,    y + s*0)
   hb.goto_point(x + s*0,    y + s*0) # Point 7
   hb.pen_up()
-    
+
 
 def draw_M (hb, x, y, s):
   # Move pen up before going to start position Point 1
   hb.pen_up()
   hb.goto_point(x + s*0, y + s*0) # Point 1
-  
+
   # Pen down to start the drawing
   hb.pen_down()
-  
+
   # Move in the correct waypoint motion
   hb.goto_point(x + s*.25,   y + s*0) # Point 2
   hb.goto_point(x + s*.25,   y + s*0.9) # Point 3
@@ -311,16 +311,16 @@ def draw_M (hb, x, y, s):
   hb.goto_point(x + s*0,     y + s*1.5)
   hb.goto_point(x + s*0,     y + s*0)
   hb.pen_up()
-    
+
 
 def draw_N (hb, x, y, s):
   # Move pen up before going to start position Point 1
   hb.pen_up()
   hb.goto_point(x + s*0, y + s*0) # Point 1
-  
+
   # Pen down to start the drawing
   hb.pen_down()
-  
+
   # Move in the correct waypoint motion
   hb.goto_point(x + s*.25,   y + s*0)   # Point 2
   hb.goto_point(x + s*.25,   y + s*1) # Point 3
@@ -334,16 +334,16 @@ def draw_N (hb, x, y, s):
   hb.goto_point(x + s*0,     y + s*0)   # Point 11
 
   hb.pen_up()
-  
+
 
 def draw_O (hb, x, y, s):
   # Move pen up before going to start position Point 1
   hb.pen_up()
   hb.goto_point(x + s*0, y + s*0) # Point 1
-  
+
   # Pen down to start the drawing
   hb.pen_down()
-  
+
   # Move in the correct waypoint motion
   hb.goto_point(x + s*1,   y + s*0)   # Point 2
   hb.goto_point(x + s*1,   y + s*1.5) # Point 3
@@ -358,14 +358,27 @@ def draw_O (hb, x, y, s):
   hb.goto_point(x + s*0.25,     y + s*0.25)
 
   hb.pen_up()
-  
+
   # Pen up before drawing next thing
   hb.pen_up()
 
 
+def draw_P(hb, x, y, s):
+    pass
 
+def draw_Q(hb, x, y, s):
+    pass
 
-def draw_U(hb, x, y, s,):
+def draw_R(hb, x, y, s):
+    pass
+
+def draw_S(hb, x, y, s):
+    pass
+
+def draw_T(hb, x, y, s):
+    pass
+
+def draw_U(hb, x, y, s):
   hb.pen_up()
   hb.goto_point(x + s*0,   y + s*1.4) # Point 1
   hb.pen_down()
@@ -382,7 +395,7 @@ def draw_U(hb, x, y, s,):
   hb.goto_point(x + s*0,   y + s*0.33)#12
   hb.goto_point(x + s*0,   y + s*1.4)
 
-  
+
 def draw_V(hb,x,y,s):
     hb.pen_up()
     hb.goto_point(x+s*0, y+s*1.25)#point1
@@ -453,10 +466,10 @@ def draw_Z(hb, x, y, s):
   # Move pen up before going to start position Point 1
   hb.pen_up()
   hb.goto_point(x + s*0, y + s*0) # Point 1
-  
+
   # Pen down to start the drawing
   hb.pen_down()
-  
+
   # Move in the correct waypoint motion
   hb.goto_point(x + s*1,   y + s*0) # Point 2
   hb.goto_point(x + s*1,   y + s*0.375) # Point 3
@@ -468,7 +481,7 @@ def draw_Z(hb, x, y, s):
   hb.goto_point(x + s*0.6, y + s*1.125)
   hb.goto_point(x + s*0,   y + s*0.375)
   hb.goto_point(x + s*0,   y + s*0)
-  
+
   # Pen up before drawing next thing
   hb.pen_up()
 
@@ -476,19 +489,19 @@ def draw_Underscore(hb, x, y, s):
   # Move pen up before going to start position Point 1
   hb.pen_up()
   hb.goto_point(x + s*0, y + s*0) # Point 1
-  
+
   # Pen down to start the drawing
   hb.pen_down()
-  
+
   # Move in the correct waypoint motion
   hb.goto_point(x + s*1, y + s*0) # Point 2
   hb.goto_point(x + s*1, y + s*0.1) # Point 3
   hb.goto_point(x + s*0, y + s*0.1) # Etc.
   hb.goto_point(x + s*0, y + s*0)
-  
+
   # Pen up before drawing next thing
   hb.pen_up()
-  
+
 
 
 if __name__ == "__main__":
@@ -497,10 +510,10 @@ if __name__ == "__main__":
   # Toggle the pen to keep the robot SAFE
   hb.pen_down()
   hb.pen_up()
-  
+
   HangmanLib.DrawString(hb, 'WE ALL', 0, 200, 150)
   HangmanLib.DrawString(hb, 'BAKE CAKE', 0, 150, 200)
-  
+
   # HangmanLib.DrawString(hb, 'AB CDE', 10, 200, 150)
   # HangmanLib.DrawString(hb, 'FGHI J', 10, 150, 150)
   # HangmanLib.DrawString(hb, 'K LMNO', 10, 100, 150)
