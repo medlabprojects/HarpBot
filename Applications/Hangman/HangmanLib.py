@@ -3,7 +3,9 @@ import random
 
 import FontLibrary
 
+
 MAX_PHRASE_LENGTH = 20 # Only allow phrases that can fit in a single line on the paper
+
 
 def LoadPhrases(file_list):
     """
@@ -37,6 +39,7 @@ def LoadPhrases(file_list):
     print("Loaded " + str(len(phrase_category_pairs)) + " phrases")
     return phrase_category_pairs
 
+
 def RandomPhrase(phrase_data):
     """
     Returns a random phrase and category from the loaded phrase data
@@ -44,6 +47,7 @@ def RandomPhrase(phrase_data):
     index = random.randint(0, len(phrase_data)-1)
     pair = phrase_data[index]
     return pair[0], pair[1]
+
 
 def Blankify(phrase, guessed_letters):
     # Returns a string with any unguessed letters as blanks
@@ -59,6 +63,7 @@ def Blankify(phrase, guessed_letters):
 
     return blanked_str.strip()
 
+
 def GetLetters(phrase):
     """
     Returns a list of all unique letters that need to be guessed to win
@@ -69,6 +74,7 @@ def GetLetters(phrase):
             letters.append(letter.lower())
 
     return sorted(letters)
+
 
 def DrawLetter(bot, c, x, y, width):
     if c.upper() == 'A': FontLibrary.draw_A(bot, x, y, width)
@@ -98,6 +104,7 @@ def DrawLetter(bot, c, x, y, width):
     elif c.upper() == 'Y': FontLibrary.draw_Y(bot, x, y, width)
     elif c.upper() == 'Z': FontLibrary.draw_Z(bot, x, y, width)
     elif c == '_': FontLibrary.draw_Underscore(bot, x, y, width)
+    elif c == ' ': pass
     else: print('Error: Character {} not supported.'.format(c))
 
 
@@ -115,9 +122,8 @@ def DrawString(bot, s, x, y, container_width):
         xi = x + ii*(letter_width + sep_width)
         DrawLetter(bot, s[ii], xi, y, letter_width)
 
-def DrawHangman(bot, num_wrong_guesses):
 
-    parts_list = ['head', 'larm', 'rarm', 'lleg', 'rleg']
+def DrawHangman(bot, num_wrong_guesses):
     if num_wrong_guesses == 1:
         DrawHead()
     elif num_wrong_guesses == 2:
@@ -130,25 +136,24 @@ def DrawHangman(bot, num_wrong_guesses):
         DrawLLeg()
     elif num_wrong_guesses == 6:
         DrawRLeg()
-    else:
-        pass
-        # don't draw
+    else: print('Incorrect num_wrong_guesses: {}'.format(num_wrong_guesses))
 
-###### HANGMAN DRAWING FUNCS ######
+
+###### HANGMAN DRAWING FUNCTIONS ######
 def DrawHead():
-  pass
+  print('Drawing Head')
   
 def DrawLArm():
-  pass
+  print('Drawing Left Arm')
   
 def DrawRArm():
-  pass
+  print('Drawing Right Arm')
   
 def DrawLLeg():
-  pass
+  print('Drawing Left Leg')
   
 def DrawRLeg():
-  pass
+  print('Drawing Right Leg')
 
 def DrawSpine():
-  pass
+  print('Drawing Spine')

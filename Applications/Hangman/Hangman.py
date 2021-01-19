@@ -3,10 +3,13 @@ Python script for playing Hangman with HarpBot
 """
 
 import sys
+
+from numpy import genfromtxt
+
 sys.path.append("../../Harpbot")
 import HangmanLib as HL
 from HarpBot import HarpBot
-from numpy import genfromtxt
+
 
 PAPER_WIDTH = 279.4
 PAPER_HEIGHT = 215.9
@@ -66,7 +69,6 @@ def draw_blanks(bot, phrase):
     print("Drawing blanks!")
 
 
-
 def draw_gallows(bot):
     ## Student code here! ##
 
@@ -103,25 +105,49 @@ def draw_guessing_table(bot):
     ## Student code here! ##
     print("Drawing guessing table!")
 
-def correct_guess(bot, letter, letter_position_list):
-    ## Student code here! ##
 
+def correct_guess(bot, letter, letter_position_list):
+    # Draw letter in all of the spots listed in letter_position_list
+    
+    for pos in letter_position_list:
+        xi = 100 + pos*10
+        yi = 100
+        HL.DrawLetter(bot, letter, xi, yi, 15)
+    
     print("Correct guess!")
     print("Letter: " + letter)
     print("Positions: " + str(letter_position_list))
 
+
 def wrong_guess(bot, letter, num_wrong_guesses):
     ## Student code here! ##
+    
+    # Draw letter in guessing table
+    HL.DrawLetter(bot, letter, 100, 100 - num_wrong_guesses*10, 15)
+    
+    # Draw body part corresponding to num_wrong_guesses
+    DrawHangman(bot, num_wrong_guesses)
+    
+    if num_wrong_guesses == 1: HL.DrawHead()
+    elif num_wrong_guesses == 2: HL.DrawSpine()
+    elif num_wrong_guesses == 3: HL.DrawLArm() 
+    elif num_wrong_guesses == 4: HL.DrawRArm()
+    elif num_wrong_guesses == 5: HL.DrawLLeg()
+    elif num_wrong_guesses == 6: HL.DrawRLeg()
+
     print("Wrong guess: " + letter)
     print("Wrong guesses so far: " + str(num_wrong_guesses))
+
 
 def win_game(bot):
     ## Student code here! ##
     print("The player has won!")
 
+
 def lose_game(bot):
     ## Student code here! ##
     print("The player has lost.")
+
 
 ##########################################
 ##           PROVIDED FUNCTIONS         ##
