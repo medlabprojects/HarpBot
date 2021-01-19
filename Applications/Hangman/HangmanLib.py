@@ -1,6 +1,8 @@
 import csv
 import random
 
+import FontLibrary
+
 MAX_PHRASE_LENGTH = 20 # Only allow phrases that can fit in a single line on the paper
 
 def LoadPhrases(file_list):
@@ -69,9 +71,35 @@ def GetLetters(phrase):
     return sorted(letters)
 
 def DrawLetter(bot, c, x, y, width):
+    if c.upper() == 'A': FontLibrary.draw_A(bot, x, y, width)
+    elif c.upper() == 'B': FontLibrary.draw_B(bot, x, y, width)
+    elif c.upper() == 'C': FontLibrary.draw_C(bot, x, y, width)
+    elif c.upper() == 'D': FontLibrary.draw_D(bot, x, y, width)
+    elif c.upper() == 'E': FontLibrary.draw_E(bot, x, y, width)
+    elif c.upper() == 'F': FontLibrary.draw_F(bot, x, y, width)
+    elif c.upper() == 'G': FontLibrary.draw_G(bot, x, y, width)
+    elif c.upper() == 'H': FontLibrary.draw_H(bot, x, y, width)
+    elif c.upper() == 'I': FontLibrary.draw_I(bot, x, y, width)
+    elif c.upper() == 'J': FontLibrary.draw_J(bot, x, y, width)
+    elif c.upper() == 'K': FontLibrary.draw_K(bot, x, y, width)
+    elif c.upper() == 'L': FontLibrary.draw_L(bot, x, y, width)
+    elif c.upper() == 'M': FontLibrary.draw_M(bot, x, y, width)
+    elif c.upper() == 'N': FontLibrary.draw_N(bot, x, y, width)
+    elif c.upper() == 'O': FontLibrary.draw_O(bot, x, y, width)
+    elif c.upper() == 'P': FontLibrary.draw_P(bot, x, y, width)
+    elif c.upper() == 'Q': FontLibrary.draw_Q(bot, x, y, width)
+    elif c.upper() == 'R': FontLibrary.draw_R(bot, x, y, width)
+    elif c.upper() == 'S': FontLibrary.draw_S(bot, x, y, width)
+    elif c.upper() == 'T': FontLibrary.draw_T(bot, x, y, width)
+    elif c.upper() == 'U': FontLibrary.draw_U(bot, x, y, width)
+    elif c.upper() == 'V': FontLibrary.draw_V(bot, x, y, width)
+    elif c.upper() == 'W': FontLibrary.draw_W(bot, x, y, width)
+    elif c.upper() == 'X': FontLibrary.draw_X(bot, x, y, width)
+    elif c.upper() == 'Y': FontLibrary.draw_Y(bot, x, y, width)
+    elif c.upper() == 'Z': FontLibrary.draw_Z(bot, x, y, width)
+    elif c == '_': FontLibrary.draw_Underscore(bot, x, y, width)
+    else: print('Error: Character {} not supported.'.format(c))
 
-    # TODO: populate this lookup table
-    print("DrawLetter()")
 
 def DrawString(bot, s, x, y, container_width):
 
@@ -85,7 +113,7 @@ def DrawString(bot, s, x, y, container_width):
 
     for ii in range(len(s)):
         xi = x + ii*(letter_width + sep_width)
-        DrawLetter(bot, s(ii), xi, y, letter_width)
+        DrawLetter(bot, s[ii], xi, y, letter_width)
 
 def DrawHangman(bot, num_wrong_guesses):
 
@@ -103,17 +131,24 @@ def DrawHangman(bot, num_wrong_guesses):
     elif num_wrong_guesses == 6:
         DrawRLeg()
     else:
+        pass
         # don't draw
 
 ###### HANGMAN DRAWING FUNCS ######
 def DrawHead():
-
+  pass
+  
 def DrawLArm():
-
+  pass
+  
 def DrawRArm():
-
+  pass
+  
 def DrawLLeg():
-
+  pass
+  
 def DrawRLeg():
+  pass
 
 def DrawSpine():
+  pass
