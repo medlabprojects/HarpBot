@@ -66,7 +66,7 @@ CLOUD_Y = 185.0
 CLOUD_W = 125.0
 CLOUD_H = 100.0
 
-CAT_LABEL_W = CLOUD_W / 2.0
+CAT_LABEL_W = CLOUD_W*0.6
 CAT_LABEL_X = CLOUD_X + 0.5*CLOUD_W - 0.5*CAT_LABEL_W
 CAT_LABEL_Y = CLOUD_Y + 0.55*CLOUD_H
 
@@ -168,6 +168,8 @@ def get_letters(phrase):
 
 
 def draw_letter(bot, c, x, y, width):
+    bot.pen_up()
+    
     if c.upper() == 'A': FontLibrary.draw_A(bot, x, y, width)
     elif c.upper() == 'B': FontLibrary.draw_B(bot, x, y, width)
     elif c.upper() == 'C': FontLibrary.draw_C(bot, x, y, width)
@@ -197,7 +199,9 @@ def draw_letter(bot, c, x, y, width):
     elif c == '_': FontLibrary.draw_Underscore(bot, x, y, width)
     elif c == ' ': pass
     else: print('Error: Character {} not supported.'.format(c))
-
+    
+    bot.pen_up()
+    
 
 def draw_string(bot, s, x, y, container_width):
     num_chars = len(s)
