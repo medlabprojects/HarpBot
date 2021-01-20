@@ -62,17 +62,17 @@ RIGHT_LEG_Y2 = BODY_Y1
 
 # Category cloud
 CLOUD_X = 50.0
-CLOUD_Y = 185.0
+CLOUD_Y = 175.0
 CLOUD_W = 125.0
-CLOUD_H = 100.0
+CLOUD_H = 150.0
 
 CAT_LABEL_W = CLOUD_W*0.6
 CAT_LABEL_X = CLOUD_X + 0.5*CLOUD_W - 0.5*CAT_LABEL_W
-CAT_LABEL_Y = CLOUD_Y + 0.55*CLOUD_H
+CAT_LABEL_Y = CLOUD_Y + 0.25*CLOUD_H
 
-CAT_NAME_W = CLOUD_W/2.0
+CAT_NAME_W = CLOUD_W*0.70
 CAT_NAME_X = CLOUD_X + 0.5*CLOUD_W - 0.5*CAT_NAME_W
-CAT_NAME_Y = CLOUD_Y + 0.15*CLOUD_H
+CAT_NAME_Y = CLOUD_Y + 0.125*CLOUD_H
 
 # Guess table
 GUESS_TABLE_X = CLOUD_X
@@ -90,7 +90,7 @@ GUESS_Y = GUESS_TABLE_Y + 0.2*GUESS_TABLE_H
 
 # Blanks
 BLANKS_X = -75.0
-BLANKS_Y = 75.0
+BLANKS_Y = 110.0
 BLANKS_W = 250.0
 
 
@@ -283,18 +283,59 @@ def draw_guessing_table(bot):
 
 def draw_head(bot):
     bot.draw_circle(HEAD_X, HEAD_Y, HEAD_RADIUS)
-
+    
+    
 def draw_left_arm(bot):
-    bot.draw_rectangle(LEFT_ARM_X1, LEFT_ARM_Y1, LEFT_ARM_X2, LEFT_ARM_Y2)
-
+    # bot.draw_rectangle(LEFT_ARM_X1, LEFT_ARM_Y1, LEFT_ARM_X2, LEFT_ARM_Y2)
+    # Move in the correct waypoint motion
+    x = LEFT_ARM_X2 - ARM_WIDTH
+    y = LEFT_ARM_Y1
+    s = ARM_WIDTH
+    bot.goto_point(x + s*0,   y + s*1.5) # Point 1
+    bot.pen_down()
+    bot.goto_point(x + s*0.25,   y + s*1.5) # Point 2
+    bot.goto_point(x + s*1,   y + s*0) # Point 3
+    bot.goto_point(x + s*0.75,   y + s*0) # Point 4
+    bot.goto_point(x + s*0,   y + s*1.5) # Point 5
+    bot.pen_up()
+  
 def draw_right_arm(bot):
-    bot.draw_rectangle(RIGHT_ARM_X1, RIGHT_ARM_Y1, RIGHT_ARM_X2, RIGHT_ARM_Y2)
-
+    #bot.draw_rectangle(RIGHT_ARM_X1, RIGHT_ARM_Y1, RIGHT_ARM_X2, RIGHT_ARM_Y2)
+    bot.pen_up()
+    bot.goto_point(RIGHT_ARM_X1 + 0, RIGHT_ARM_Y2 - ARM_HEIGHT)
+    bot.pen_down()
+    bot.goto_point(RIGHT_ARM_X2 + 0, RIGHT_ARM_Y1 - ARM_HEIGHT)
+    bot.pen_up()
+    
 def draw_left_leg(bot):
-    bot.draw_rectangle(LEFT_LEG_X1, LEFT_LEG_Y1, LEFT_LEG_X2, LEFT_LEG_Y2)
-
+    #bot.draw_rectangle(LEFT_LEG_X1, LEFT_LEG_Y1, LEFT_LEG_X2, LEFT_LEG_Y2)
+    bot.goto_point(LEFT_LEG_X1, LEFT_LEG_Y1)
+    bot.pen_down()
+    bot.goto_point(LEFT_LEG_X2, LEFT_LEG_Y2)
+    bot.pen_up()
+  
 def draw_right_leg(bot):
-    bot.draw_rectangle(RIGHT_LEG_X1, RIGHT_LEG_Y1, RIGHT_LEG_X2, RIGHT_LEG_Y2)
+    #bot.draw_rectangle(RIGHT_LEG_X1, RIGHT_LEG_Y1, RIGHT_LEG_X2, RIGHT_LEG_Y2)
+    bot.goto_point(RIGHT_LEG_X2, RIGHT_LEG_Y1)
+    bot.pen_down()
+    bot.goto_point(RIGHT_LEG_X1, RIGHT_LEG_Y2)
+    bot.pen_up()
 
 def draw_spine(bot):
-    bot.draw_rectangle(BODY_X1, BODY_Y1, BODY_X2, BODY_Y2)
+    # bot.draw_rectangle(BODY_X1, BODY_Y1, BODY_X2, BODY_Y2)
+    x = BODY_X1
+    y = BODY_Y1
+    s = BODY_HEIGHT
+    bot.pen_up()
+    bot.goto_point(x + s*0, y + s*0) # Point 1
+    bot.pen_down()
+    bot.goto_point(x + s*0, y + s*1)
+    bot.pen_up()
+    bot.goto_point(x + s*.05, y + s*0) # Point 3
+    bot.pen_down()
+    bot.goto_point(x + s*.05, y + s*1)
+    bot.pen_up()
+    bot.goto_point(x + s*.025, y + s*0) # Point 5
+    bot.pen_down()
+    bot.goto_point(x + s*.025, y + s*1)
+    bot.pen_up()

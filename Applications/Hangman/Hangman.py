@@ -202,6 +202,10 @@ def ask_yn(question):
 is_first_game = True
 while True:
     bot = HarpBot()
+    bot.pen_up()
+    bot.pen_down()
+    bot.pen_up()
+    
     ### If the player has already played a game, ask if they want to play again
     if not is_first_game:
         play_again = ask_yn("Would you like to play again? ")
@@ -217,3 +221,14 @@ while True:
     is_first_game = False
 
 print("Bye!")
+# bot = HarpBot()
+# bot.go_home()
+# HL.draw_hangman(bot, 1)
+# HL.draw_hangman(bot, 2)
+# HL.draw_hangman(bot, 3)
+# HL.draw_hangman(bot, 4)
+# HL.draw_hangman(bot, 5)
+# HL.draw_hangman(bot, 6)
+# bot.go_home()
+# press_enter = input("Please set up a new sheet of paper, and press enter.")
+

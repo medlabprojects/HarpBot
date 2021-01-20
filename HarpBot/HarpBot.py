@@ -6,6 +6,10 @@ import numpy as np
 import HarpPlot
 import HarpBotSerial
 
+
+# Toggle to turn animation on/off
+ANIMATION_ON = False
+
 # Robot parameters to be measured/calibrated
 LINK_1_LENGTH = 160.0 # (mm)
 LINK_2_LENGTH = 145.0 # (mm)
@@ -14,7 +18,7 @@ LINK_2_LENGTH = 145.0 # (mm)
 HOME_X = LINK_1_LENGTH + LINK_2_LENGTH
 HOME_Y = 0
 
-GOTO_STEP_SIZE = 100 # (mm) The max distance that the robot will move in one step when going to a new position
+GOTO_STEP_SIZE = 5 # (mm) The max distance that the robot will move in one step when going to a new position
 
 # Size of paper (8.5x11)
 PAPER_WIDTH = 279.4
@@ -229,8 +233,9 @@ class HarpBot:
         # If the robot is enabled, then move the robot, otherwise just do plotting
         if self.robot_enabled:
             self.hb_ser.goto(x, y)
-
-        self.draw_scene()
+        
+        if ANIMATION_ON:
+            self.draw_scene()
         # If the pen is down, then draw a line from the previous point to the new point
         if self.is_pen_down:
             self.hp.add_line((self.xpos, self.ypos), (x,y), \
@@ -270,7 +275,7 @@ class HarpBot:
 
 
 if __name__ == "__main__":
-    bot = HarpBot('COM4')
+    bot = HarpBot()
 
     bot.pen_down()
     bot.pen_up()

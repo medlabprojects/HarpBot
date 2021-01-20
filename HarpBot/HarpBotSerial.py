@@ -2,9 +2,18 @@ import time
 
 import serial
 
+is_pen_up = False
 
 def xy_to_gcode(x, y):
-  code = 'G0 X{:.3f} Y{:.3F}\r\n'.format(x, y)
+  global is_pen_up
+  
+  code = 'G0 X{:.3f} Y{:.3F} '.format(x, y)
+  if is_pen_up:
+    code += 'Z5.000'
+  else:
+    code += 'Z-5.000'
+  
+  code += '\r\n'
   return bytes(code, 'utf-8')
 
 PEN_UP_GCODE = b'G0 Z5\r\n'
@@ -32,20 +41,34 @@ class HarpBotSerial:
     
   def goto(self, x, y):
     self.ser.write(xy_to_gcode(x, y))
-    self.wait_for_ok()
-    
+    is_error = self.wait_for_ok()
+    if is_error:
+      self.goto(x, y)
+      
   def pen_up(self):
+    global is_pen_up
+    is_pen_up = True
     self.ser.write(PEN_UP_GCODE)
-    self.wait_for_ok()
-    
+    is_error = self.wait_for_ok()
+    if is_error:
+      self.pen_up()
+      
   def pen_down(self):
+    global is_pen_up
+    is_pen_up = False
     self.ser.write(PEN_DOWN_GCODE)
-    self.wait_for_ok()
-  
+    is_error = self.wait_for_ok()
+    if is_error:
+      self.pen_down()
+      
   def wait_for_ok(self):
     line = self.ser.readline()
-    print(line)
-    #time.sleep(0.01)
+    if 'error' in str(line):
+      print(str(line))
+      return True
+    
+    time.sleep(0.2)
+    return False
     
     
 if __name__ == "__main__":
