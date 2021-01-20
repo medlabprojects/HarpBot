@@ -7,8 +7,8 @@ X_AXIS_LIM_HI = 350
 Y_AXIS_LIM_LO = -50
 Y_AXIS_LIM_HI = 350
 
-FIG_SIZE_X = 15
-FIG_SIZE_Y = 10
+FIG_SIZE_X = 10
+FIG_SIZE_Y = 8
 
 
 class HarpPlot:

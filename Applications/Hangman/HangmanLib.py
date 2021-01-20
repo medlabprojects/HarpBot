@@ -1,13 +1,100 @@
 import csv
 import random
 
+from numpy import genfromtxt
+
 import FontLibrary
 
 
 MAX_PHRASE_LENGTH = 20 # Only allow phrases that can fit in a single line on the paper
 
+# Gallows
+GALLOWS_X = -80.0
+GALLOWS_Y = 125.0
+GALLOWS_W = 75.0
+GALLOWS_H = 130.0
+NOOSE_X = GALLOWS_X + 0.8*GALLOWS_W  #(g_x + 0.8*g_w, g_y + 0.8*g_h)
+NOOSE_Y = GALLOWS_Y + 0.8*GALLOWS_H
 
-def LoadPhrases(file_list):
+# Head
+HEAD_RADIUS = 10
+HEAD_X = NOOSE_X
+HEAD_Y = NOOSE_Y - HEAD_RADIUS
+
+BODY_HEIGHT = 30
+BODY_WIDTH = 5
+
+# Body
+BODY_X1 = HEAD_X - (BODY_WIDTH)/2.0
+BODY_Y1 = HEAD_Y - HEAD_RADIUS - BODY_HEIGHT
+BODY_X2 = HEAD_X + (BODY_WIDTH)/2.0
+BODY_Y2 = HEAD_Y - HEAD_RADIUS
+
+ARM_WIDTH = 40
+ARM_HEIGHT = 40
+LEG_HEIGHT = 40
+LEG_WIDTH = 40
+NECK_LENGTH = 5
+
+# Left Arm
+LEFT_ARM_X1 = BODY_X1 - ARM_WIDTH
+LEFT_ARM_Y1 = BODY_Y2 - NECK_LENGTH
+LEFT_ARM_X2 = BODY_X1
+LEFT_ARM_Y2 = BODY_Y2 + ARM_HEIGHT - NECK_LENGTH
+
+# Right Arm
+RIGHT_ARM_X1 = BODY_X2
+RIGHT_ARM_Y1 = BODY_Y2 - NECK_LENGTH
+RIGHT_ARM_X2 = BODY_X2 + ARM_WIDTH
+RIGHT_ARM_Y2 = BODY_Y2 + ARM_HEIGHT - NECK_LENGTH
+
+# Left Leg
+LEFT_LEG_X1 = BODY_X1 - LEG_WIDTH
+LEFT_LEG_Y1 = BODY_Y1 - LEG_HEIGHT
+LEFT_LEG_X2 = BODY_X1
+LEFT_LEG_Y2 = BODY_Y1
+
+# Right Leg
+RIGHT_LEG_X1 = BODY_X2
+RIGHT_LEG_Y1 = BODY_Y1 - LEG_HEIGHT
+RIGHT_LEG_X2 = BODY_X2 + LEG_WIDTH
+RIGHT_LEG_Y2 = BODY_Y1
+
+# Category cloud
+CLOUD_X = 50.0
+CLOUD_Y = 185.0
+CLOUD_W = 125.0
+CLOUD_H = 100.0
+
+CAT_LABEL_W = CLOUD_W / 2.0
+CAT_LABEL_X = CLOUD_X + 0.5*CLOUD_W - 0.5*CAT_LABEL_W
+CAT_LABEL_Y = CLOUD_Y + 0.55*CLOUD_H
+
+CAT_NAME_W = CLOUD_W/2.0
+CAT_NAME_X = CLOUD_X + 0.5*CLOUD_W - 0.5*CAT_NAME_W
+CAT_NAME_Y = CLOUD_Y + 0.15*CLOUD_H
+
+# Guess table
+GUESS_TABLE_X = CLOUD_X
+GUESS_TABLE_Y = GALLOWS_Y
+GUESS_TABLE_W = CLOUD_W
+GUESS_TABLE_H = 30
+
+GUESS_LABEL_W = GUESS_TABLE_W / 2.0
+GUESS_LABEL_X = GUESS_TABLE_X + 0.5*GUESS_TABLE_W - 0.5*GUESS_LABEL_W
+GUESS_LABEL_Y = GUESS_TABLE_Y + 1.1*GUESS_TABLE_H
+
+GUESS_W = GUESS_TABLE_W*0.50
+GUESS_X = GUESS_TABLE_X + 0.5*GUESS_TABLE_W - 0.5*GUESS_W
+GUESS_Y = GUESS_TABLE_Y + 0.2*GUESS_TABLE_H
+
+# Blanks
+BLANKS_X = -75.0
+BLANKS_Y = 75.0
+BLANKS_W = 250.0
+
+
+def load_phrases(file_list):
     """
     Loads phrases and categories from 'data.csv'
     """
@@ -40,7 +127,7 @@ def LoadPhrases(file_list):
     return phrase_category_pairs
 
 
-def RandomPhrase(phrase_data):
+def random_phrase(phrase_data):
     """
     Returns a random phrase and category from the loaded phrase data
     """
@@ -49,7 +136,7 @@ def RandomPhrase(phrase_data):
     return pair[0], pair[1]
 
 
-def Blankify(phrase, guessed_letters):
+def blankify(phrase, guessed_letters):
     # Returns a string with any unguessed letters as blanks
     blanked_str = ""
     blanked_str_nospace =""
@@ -68,7 +155,7 @@ def Blankify(phrase, guessed_letters):
     return blanked_str.strip(), blanked_str_nospace.strip()
 
 
-def GetLetters(phrase):
+def get_letters(phrase):
     """
     Returns a list of all unique letters that need to be guessed to win
     """
@@ -80,7 +167,7 @@ def GetLetters(phrase):
     return sorted(letters)
 
 
-def DrawLetter(bot, c, x, y, width):
+def draw_letter(bot, c, x, y, width):
     if c.upper() == 'A': FontLibrary.draw_A(bot, x, y, width)
     elif c.upper() == 'B': FontLibrary.draw_B(bot, x, y, width)
     elif c.upper() == 'C': FontLibrary.draw_C(bot, x, y, width)
@@ -112,9 +199,7 @@ def DrawLetter(bot, c, x, y, width):
     else: print('Error: Character {} not supported.'.format(c))
 
 
-def DrawString(bot, s, x, y, container_width):
-
-    print("DrawString()")
+def draw_string(bot, s, x, y, container_width):
     num_chars = len(s)
     num_seps = num_chars - 1
 
@@ -124,40 +209,88 @@ def DrawString(bot, s, x, y, container_width):
 
     for ii in range(len(s)):
         xi = x + ii*(full_width)
-        DrawLetter(bot, s[ii], xi, y, letter_width)
+        draw_letter(bot, s[ii], xi, y, letter_width)
 
 
-def DrawHangman(bot, num_wrong_guesses):
+def draw_hangman(bot, num_wrong_guesses):
     if num_wrong_guesses == 1:
-        DrawHead()
+        draw_head(bot)
     elif num_wrong_guesses == 2:
-        DrawSpine()
+        draw_spine(bot)
     elif num_wrong_guesses == 3:
-        DrawLArm()
+        draw_left_arm(bot)
     elif num_wrong_guesses == 4:
-        DrawRArm()
+        draw_right_arm(bot)
     elif num_wrong_guesses == 5:
-        DrawLLeg()
+        draw_left_leg(bot)
     elif num_wrong_guesses == 6:
-        DrawRLeg()
+        draw_right_leg(bot)
     else: print('Incorrect num_wrong_guesses: {}'.format(num_wrong_guesses))
 
 
-###### HANGMAN DRAWING FUNCTIONS ######
-def DrawHead():
-  print('Drawing Head')
+def draw_category(bot, category):
+    # Draws cloud
+    cloud_coords = genfromtxt('image_outlines/cloud_coords.csv', delimiter=',')
+    bot.pen_up()
+    for ii in range(len(cloud_coords)):
+        bot.goto_point(CLOUD_X + cloud_coords[ii,0]*CLOUD_W, CLOUD_Y + cloud_coords[ii,1]*CLOUD_H)
+        if ii == 0:
+            bot.pen_down()
+        if ii == len(cloud_coords):
+            bot.pen_up()
 
-def DrawLArm():
-  print('Drawing Left Arm')
+    # TODO: draw the word "category" on top of box
+    draw_string(bot, "category", CAT_LABEL_X, CAT_LABEL_Y, CAT_LABEL_W)
+    draw_string(bot, category, CAT_NAME_X, CAT_NAME_Y, CAT_NAME_W)
 
-def DrawRArm():
-  print('Drawing Right Arm')
 
-def DrawLLeg():
-  print('Drawing Left Leg')
+def draw_blanks(bot, phrase):
+    _, blankified_phrase = blankify(phrase,[])
+    draw_string(bot, blankified_phrase, BLANKS_X, BLANKS_Y, BLANKS_W)
 
-def DrawRLeg():
-  print('Drawing Right Leg')
 
-def DrawSpine():
-  print('Drawing Spine')
+def draw_gallows(bot):
+    bot.pen_up()
+    bot.goto_point(GALLOWS_X + 0.00*GALLOWS_W, GALLOWS_Y + 0.00*GALLOWS_H)    # 1
+    bot.pen_down()
+    bot.goto_point(GALLOWS_X + 0.30*GALLOWS_W, GALLOWS_Y + 0.20*GALLOWS_H)    # 2
+    bot.goto_point(GALLOWS_X + 0.30*GALLOWS_W, GALLOWS_Y + 1.00*GALLOWS_H)    # 3
+    bot.goto_point(GALLOWS_X + 0.80*GALLOWS_W, GALLOWS_Y + 1.00*GALLOWS_H)    # 4
+    bot.goto_point(GALLOWS_X + 0.80*GALLOWS_W, GALLOWS_Y + 0.95*GALLOWS_H)    # 5
+    bot.goto_point(GALLOWS_X + 0.40*GALLOWS_W, GALLOWS_Y + 0.95*GALLOWS_H)    # 6
+    bot.goto_point(GALLOWS_X + 0.40*GALLOWS_W, GALLOWS_Y + 0.20*GALLOWS_H)    # 7
+    bot.goto_point(GALLOWS_X + 0.70*GALLOWS_W, GALLOWS_Y + 0.00*GALLOWS_H)    # 8
+    bot.goto_point(GALLOWS_X + 0.60*GALLOWS_W, GALLOWS_Y + 0.00*GALLOWS_H)    # 9
+    bot.goto_point(GALLOWS_X + 0.35*GALLOWS_W, GALLOWS_Y + 0.15*GALLOWS_H)    # 10
+    bot.goto_point(GALLOWS_X + 0.10*GALLOWS_W, GALLOWS_Y + 0.00*GALLOWS_H)    # 11
+    bot.goto_point(GALLOWS_X + 0.00*GALLOWS_W, GALLOWS_Y + 0.00*GALLOWS_H)    # 12
+    bot.pen_up()
+    bot.goto_point(GALLOWS_X + 0.80*GALLOWS_W, GALLOWS_Y + 0.95*GALLOWS_H)    # 13
+    bot.pen_down()
+    bot.goto_point(GALLOWS_X + 0.80*GALLOWS_W, GALLOWS_Y + 0.80*GALLOWS_H)    # 14 -- noose location
+    bot.pen_up()
+
+
+def draw_guessing_table(bot):
+    bot.draw_rectangle(GUESS_TABLE_X, GUESS_TABLE_Y, GUESS_TABLE_X + GUESS_TABLE_W, GUESS_TABLE_Y + GUESS_TABLE_H)
+    eps = 3
+    bot.draw_rectangle(GUESS_TABLE_X + eps, GUESS_TABLE_Y + eps, GUESS_TABLE_X + GUESS_TABLE_W - eps, GUESS_TABLE_Y + GUESS_TABLE_H - eps)
+    draw_string(bot, 'GUESSES', GUESS_LABEL_X, GUESS_LABEL_Y, GUESS_LABEL_W)
+
+def draw_head(bot):
+    bot.draw_circle(HEAD_X, HEAD_Y, HEAD_RADIUS)
+
+def draw_left_arm(bot):
+    bot.draw_rectangle(LEFT_ARM_X1, LEFT_ARM_Y1, LEFT_ARM_X2, LEFT_ARM_Y2)
+
+def draw_right_arm(bot):
+    bot.draw_rectangle(RIGHT_ARM_X1, RIGHT_ARM_Y1, RIGHT_ARM_X2, RIGHT_ARM_Y2)
+
+def draw_left_leg(bot):
+    bot.draw_rectangle(LEFT_LEG_X1, LEFT_LEG_Y1, LEFT_LEG_X2, LEFT_LEG_Y2)
+
+def draw_right_leg(bot):
+    bot.draw_rectangle(RIGHT_LEG_X1, RIGHT_LEG_Y1, RIGHT_LEG_X2, RIGHT_LEG_Y2)
+
+def draw_spine(bot):
+    bot.draw_rectangle(BODY_X1, BODY_Y1, BODY_X2, BODY_Y2)

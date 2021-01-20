@@ -14,7 +14,7 @@ LINK_2_LENGTH = 145.0 # (mm)
 HOME_X = LINK_1_LENGTH + LINK_2_LENGTH
 HOME_Y = 0
 
-GOTO_STEP_SIZE = 20 # (mm) The max distance that the robot will move in one step when going to a new position
+GOTO_STEP_SIZE = 100 # (mm) The max distance that the robot will move in one step when going to a new position
 
 # Size of paper (8.5x11)
 PAPER_WIDTH = 279.4
@@ -183,6 +183,39 @@ class HarpBot:
 
             # Recursively call goto_point until we get to our destination
             self.goto_point(x, y)
+
+    def draw_rectangle(self, x1, y1, x2, y2):
+        """
+        Draws a rectangle bounded by the points (x1, y1) and (x2, y2)
+        """
+        self.pen_up()
+        self.goto_point(x1, y1)
+        self.pen_down()
+        self.goto_point(x2, y1)
+        self.goto_point(x2, y2)
+        self.goto_point(x1, y2)
+        self.goto_point(x1, y1)
+        self.pen_up()
+
+    def draw_circle(self, x, y, r):
+        """
+        Draws a circle centered at (x,y), with radius r
+        """
+        PI = 3.1415
+        angle = 0
+
+        # Move the pen to where the circle drawing will begin
+        self.pen_up()
+        self.goto_point(x + r, y) # When angle is zero, the point is just horizontal in x direction (x + r)
+        self.pen_down()
+
+        # Use 30 equally-spaced points to appear round
+        num_steps = 30
+        for i in range(0, num_steps):
+            angle += (2*PI/num_steps)
+            pt_x = x + r * math.cos(angle)
+            pt_y = y + r * math.sin(angle)
+            self.goto_point(pt_x, pt_y)
 
     def set_position(self, x, y):
         """

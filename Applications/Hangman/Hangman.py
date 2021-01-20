@@ -4,8 +4,6 @@ Python script for playing Hangman with HarpBot
 
 import sys
 
-from numpy import genfromtxt
-
 sys.path.append("../../Harpbot")
 import HangmanLib as HL
 from HarpBot import HarpBot
@@ -25,123 +23,24 @@ phrase_files = ["datasets/real_robots.csv",
                 "datasets/spongebob.csv"]
 
 # Load the category/phrase pairs
-category_phrase_list = HL.LoadPhrases(phrase_files)
+category_phrase_list = HL.load_phrases(phrase_files)
 
 
 ##########################################
 ##          STUDENT FUNCTIONS           ##
 ##########################################
 
-def draw_category(bot, category):
-    ## Student code here! ##
-    print("Drawing category: " + category)
-    c_x = 50.0
-    c_y = 175.0
-    c_w = 150.0
-    c_h = 100.0
-    # c_h = 20.0;
-
-    # Draws rectangle
-    # bot.pen_up()
-    # bot.goto_point(c_x + 0.0, c_y + 0.0)
-    # bot.pen_down()
-    # bot.goto_point(c_x + 1.0*c_w, c_y + 0.0)
-    # bot.goto_point(c_x + 1.0*c_w, c_y + 1.0*c_h)
-    # bot.goto_point(c_x + 0.0, c_y + 1.0*c_h)
-    # bot.goto_point(c_x + 0.0, c_y + 0.0)
-    # bot.pen_up()
-
-
-
-    # Draws cloud
-    cloud_coords = genfromtxt('image_outlines/cloud_coords.csv', delimiter=',')
-    bot.pen_up()
-    for ii in range(len(cloud_coords)):
-        bot.goto_point(c_x + cloud_coords[ii,0]*c_w, c_y + cloud_coords[ii,1]*c_h)
-        if ii == 0:
-            bot.pen_down()
-        if ii == len(cloud_coords):
-            bot.pen_up()
-
-
-
-    # TODO: draw the word "category" on top of box
-    HL.DrawString(bot, "category", c_x + 10, c_y + 30, 75.0)
-    # TODO: draw category in box using DrawString()
-
-def draw_blanks(bot, phrase):
-    ## Student code here! ##
-    # define x,y origin, overall spacing
-    # call string = blankify(phrase)
-    # compute spacing given overall spacing
-    b_x = -75.0
-    b_y = 100.0
-    b_spacing = 20.0
-    # b_w = b_spacing * 20
-    b_w =250.0
-    _, blankified_phrase = HL.Blankify(phrase,[])
-    HL.DrawString(bot, blankified_phrase, b_x, b_y, b_w)
-
-    print("Drawing blanks!")
-
-
-def draw_gallows(bot):
-    ## Student code here! ##
-
-    print("Drawing hangman!")
-
-    g_x = -75.0
-    g_y = 150.0
-    g_h = 100.0
-    g_w = 100.0
-
-    bot.pen_up()
-    bot.goto_point(g_x + 0.0*g_w, g_y + 0.0*g_h)    # 1
-    bot.pen_down()
-    bot.goto_point(g_x + 0.3*g_w, g_y + 0.2*g_h)    # 2
-    bot.goto_point(g_x + 0.3*g_w, g_y + 1.0*g_h)    # 3
-    bot.goto_point(g_x + 0.8*g_w, g_y + 1.0*g_h)    # 4
-    bot.goto_point(g_x + 0.8*g_w, g_y + 0.9*g_h)    # 5
-    bot.goto_point(g_x + 0.4*g_w, g_y + 0.9*g_h)    # 6
-    bot.goto_point(g_x + 0.4*g_w, g_y + 0.2*g_h)    # 7
-    bot.goto_point(g_x + 0.7*g_w, g_y + 0.0*g_h)    # 8
-    bot.goto_point(g_x + 0.6*g_w, g_y + 0.0*g_h)    # 9
-    bot.goto_point(g_x + 0.35*g_w, g_y + 0.15*g_h)  # 10
-    bot.goto_point(g_x + 0.1*g_w, g_y + 0.0*g_h)    # 11
-    bot.goto_point(g_x + 0.0*g_w, g_y + 0.0*g_h)    # 12
-    bot.pen_up()
-    bot.goto_point(g_x + 0.8*g_w, g_y + 0.9*g_h)    # 13
-    bot.pen_down()
-    bot.goto_point(g_x + 0.8*g_w, g_y + 0.8*g_h)    # 14 -- noose location
-    bot.pen_up()
-    bot.go_home()
-
-
-def draw_guessing_table(bot):
-    ## Student code here! ##
-    print("Drawing guessing table!")
-    t_x = 75.0
-    t_y = 150.0
-    t_h = 25.0
-    t_w = 150.0
-
-    bot.pen_up()
-    bot.goto_point(t_x + 0.0*t_w, t_y + 0.0*t_h)    # 1
-    bot.pen_down()
-    bot.goto_point(t_x + 0.0*t_w, t_y + 1.0*t_h)    # 2
-    bot.goto_point(t_x + 1.0*t_w, t_y + 1.0*t_h)    # 3
-    bot.goto_point(t_x + 0.0*t_w, t_y + 1.0*t_h)    # 4
-    bot.goto_point(t_x + 0.0*t_w, t_y + 0.0*t_h)
-    bot.pen_up()
-
-
-def correct_guess(bot, letter, letter_position_list):
+def correct_guess(bot, letter, letter_position_list, phrase):
     # Draw letter in all of the spots listed in letter_position_list
 
+    spaced_str = list(' '*len(phrase))
     for pos in letter_position_list:
-        xi = 100 + pos*10
-        yi = 100
-        HL.DrawLetter(bot, letter, xi, yi, 15)
+        spaced_str[pos] = letter
+
+    dist_to_blanks = 3.0
+    HL.draw_string(bot, "".join(spaced_str), HL.BLANKS_X, HL.BLANKS_Y + dist_to_blanks, HL.BLANKS_W)
+
+    bot.go_home()
 
     print("Correct guess!")
     print("Letter: " + letter)
@@ -149,20 +48,16 @@ def correct_guess(bot, letter, letter_position_list):
 
 
 def wrong_guess(bot, letter, num_wrong_guesses):
-    ## Student code here! ##
-
     # Draw letter in guessing table
-    HL.DrawLetter(bot, letter, 100, 100 - num_wrong_guesses*10, 15)
+    padded_letter = ' '*(num_wrong_guesses - 1) + letter
+    padded_letter += ' '*(6 - len(padded_letter))
+
+    HL.draw_string(bot, padded_letter, HL.GUESS_X, HL.GUESS_Y, HL.GUESS_W)
 
     # Draw body part corresponding to num_wrong_guesses
-    DrawHangman(bot, num_wrong_guesses)
+    HL.draw_hangman(bot, num_wrong_guesses)
 
-    if num_wrong_guesses == 1: HL.DrawHead()
-    elif num_wrong_guesses == 2: HL.DrawSpine()
-    elif num_wrong_guesses == 3: HL.DrawLArm()
-    elif num_wrong_guesses == 4: HL.DrawRArm()
-    elif num_wrong_guesses == 5: HL.DrawLLeg()
-    elif num_wrong_guesses == 6: HL.DrawRLeg()
+    bot.go_home()
 
     print("Wrong guess: " + letter)
     print("Wrong guesses so far: " + str(num_wrong_guesses))
@@ -192,16 +87,18 @@ def guess_letter():
 def setup_game(bot, category, phrase):
 
     # Write what the category is
-    draw_category(bot, category)
+    HL.draw_category(bot, category)
 
     # Draw the blanks for the phrase
-    draw_blanks(bot, phrase)
+    HL.draw_blanks(bot, phrase)
 
     # Draw an empty hangman
-    draw_gallows(bot)
+    HL.draw_gallows(bot)
 
     # Draw the guessing table
-    draw_guessing_table(bot)
+    HL.draw_guessing_table(bot)
+
+    bot.go_home()
 
     print("Setup complete!")
     print("-" * 40)
@@ -211,11 +108,11 @@ def setup_game(bot, category, phrase):
 def play_game(bot):
 
     # Choose a random category/phrase pair from the list
-    category, phrase = HL.RandomPhrase(category_phrase_list)
+    category, phrase = HL.random_phrase(category_phrase_list)
     setup_game(bot, category, phrase)
 
     # The list of letters that need to be guessed to win
-    phrase_letters = HL.GetLetters(phrase)
+    phrase_letters = HL.get_letters(phrase)
 
     # Loop until the game is over
     game_over = False
@@ -226,7 +123,7 @@ def play_game(bot):
 
     while not game_over:
         print("_" * 30 + "\n")
-        msg, _ = HL.Blankify(phrase, guessed_letters)
+        msg, _ = HL.blankify(phrase, guessed_letters)
         print(msg + "\n") # Print the guessed word so far
         print("Category: " + category) # Print what the category is
         print("Guessed letters: " + str(guessed_letters)) # Print the guessed letters so far
@@ -255,7 +152,7 @@ def play_game(bot):
             # Correct guess!
             # Get the positions where the letter is in the phrase
             char_positions = [pos for pos, char in enumerate(phrase) if char == letter]
-            correct_guess(bot, letter, char_positions)
+            correct_guess(bot, letter, char_positions, phrase)
 
         ################ Determine if the game is over #################
         # Check if the player has won or lost
@@ -302,9 +199,9 @@ def ask_yn(question):
 
 
 ### MAIN LOOP ###
-bot = HarpBot()
 is_first_game = True
 while True:
+    bot = HarpBot()
     ### If the player has already played a game, ask if they want to play again
     if not is_first_game:
         play_again = ask_yn("Would you like to play again? ")
@@ -313,8 +210,10 @@ while True:
         else:
             # Prompt user to set up paper
             press_enter = input("Please set up a new sheet of paper, and press enter.")
-    bot.go_home()
+
     play_game(bot)
+    bot.go_home()
+    del bot
     is_first_game = False
 
 print("Bye!")
