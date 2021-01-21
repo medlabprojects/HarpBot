@@ -3,16 +3,14 @@ Python script for playing Hangman with HarpBot
 """
 
 import sys
+import time
 
 sys.path.append("../../Harpbot")
 import HangmanLib as HL
-from HarpBot import HarpBot
+import FontLibrary
 
+from HarpBot import HarpBot, PAPER_WIDTH, PAPER_HEIGHT, PAPER_X_OFFSET, PAPER_Y_OFFSET
 
-PAPER_WIDTH = 279.4
-PAPER_HEIGHT = 215.9
-PAPER_X_OFFSET = -87 # How far from the robot the left edge of the paper is placed (mm)
-PAPER_Y_OFFSET = 66.1
 
 WRONG_GUESSES_TO_LOSE = 6 # TODO - Set to however many pieces of the man are drawn
 
@@ -32,13 +30,23 @@ category_phrase_list = HL.load_phrases(phrase_files)
 
 def correct_guess(bot, letter, letter_position_list, phrase):
     # Draw letter in all of the spots listed in letter_position_list
-
     spaced_str = list(' '*len(phrase))
     for pos in letter_position_list:
         spaced_str[pos] = letter
 
-    dist_to_blanks = 3.0
-    HL.draw_string(bot, "".join(spaced_str), HL.BLANKS_X, HL.BLANKS_Y + dist_to_blanks, HL.BLANKS_W)
+    approx_letter_w = HL.BLANKS_W/len(spaced_str)
+    approx_letter_h = approx_letter_w*FontLibrary.MAX_LETTER_Y
+    
+    # When there's a short word, the full BLANKS_W makes the letters too tall s.t. they intersect with gallows.
+    # Let's detect when this happens and set phrase_width to be s.t. the letters are MAX_BLANKS_H tall.
+    if approx_letter_h > HL.MAX_BLANKS_H:
+      approx_letter_w = HL.MAX_BLANKS_H/FontLibrary.MAX_LETTER_Y
+      phrase_w = approx_letter_w*len(spaced_str)
+    else:
+      phrase_w = HL.BLANKS_W
+    
+    dist_to_blanks = 3.0  # Controls how far up off of the blanks the letters are written.
+    HL.draw_string(bot, "".join(spaced_str), HL.BLANKS_X, HL.BLANKS_Y + dist_to_blanks, phrase_w)
 
     bot.go_home()
 
@@ -109,6 +117,7 @@ def play_game(bot):
 
     # Choose a random category/phrase pair from the list
     category, phrase = HL.random_phrase(category_phrase_list)
+    
     setup_game(bot, category, phrase)
 
     # The list of letters that need to be guessed to win
@@ -217,6 +226,8 @@ while True:
 
     play_game(bot)
     bot.go_home()
+    time.sleep(2.0)
+    
     del bot
     is_first_game = False
 

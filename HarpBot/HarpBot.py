@@ -18,7 +18,7 @@ LINK_2_LENGTH = 145.0 # (mm)
 HOME_X = LINK_1_LENGTH + LINK_2_LENGTH
 HOME_Y = 0
 
-GOTO_STEP_SIZE = 5 # (mm) The max distance that the robot will move in one step when going to a new position
+GOTO_STEP_SIZE = 3 # (mm) The max distance that the robot will move in one step when going to a new position
 
 # Size of paper (8.5x11)
 PAPER_WIDTH = 279.4
@@ -97,15 +97,16 @@ class HarpBot:
             self.robot_enabled = True
             print('Robot successfully connected and enabled for HarpBot')
         else:
-            print('Robot could not be enabled for HarpBot. Running in simulation only mode.')
-
-        # The robot didn't connect, want to run in simulation mode
-        self.hp = HarpPlot.HarpPlot()
-        # The lines used to draw the robot arm
-        self.robot_lines = []
-        # Go ahead and draw the workspace
-        self.draw_workspace()
-
+            print('Robot could not be enabled for HarpBot.')
+        
+        if ANIMATION_ON:
+            print('Animation set to on. Plotting robot movements with HarpPlot.')
+            self.hp = HarpPlot.HarpPlot()
+            self.robot_lines = []
+            self.draw_workspace()
+        else:
+            print('Animation set to off. No robot simulation will occur.')
+            
     def pen_up(self):
         """ Lifts the pen"""
         self.is_pen_down = False
@@ -134,7 +135,7 @@ class HarpBot:
     def draw_robot(self):
         # First get the points defining where the robot is in space
         x2, y2, x1, y1, x0, y0 = forward_kinematics(self.joint_angles[0], self.joint_angles[1])
-
+        
         # First I want to draw a little base triangle using lines and points
         triangle_size = 20
         l1 = self.hp.add_line((x0, y0),
@@ -236,10 +237,10 @@ class HarpBot:
         
         if ANIMATION_ON:
             self.draw_scene()
-        # If the pen is down, then draw a line from the previous point to the new point
-        if self.is_pen_down:
-            self.hp.add_line((self.xpos, self.ypos), (x,y), \
-                            line_color = 'b', marker_color = 'b', marker_size=1)
+            # If the pen is down, then draw a line from the previous point to the new point
+            if self.is_pen_down:
+                self.hp.add_line((self.xpos, self.ypos), (x,y), \
+                                line_color = 'b', marker_color = 'b', marker_size=1)
 
         # If the point is in the accessible work space, set the position!
         self.xpos = x

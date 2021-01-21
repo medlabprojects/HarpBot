@@ -5,6 +5,15 @@ from HarpBot import HarpBot
 import HangmanLib
 
 
+# These constants set the aspect ratio of the letters. 
+# Really, the only one that's a choice is MAX_LETTER_Y = 1.5 
+# TODO: incorporate these constants into the draw_<> functions below.
+MIN_LETTER_X = 0.0
+MAX_LETTER_X = 1.0
+MIN_LETTER_Y = 0.0
+MAX_LETTER_Y = 1.5
+
+
 def draw_A(hb, x, y, s):
   hb.pen_up()
   hb.goto_point(x,y) #point number 1
@@ -54,6 +63,7 @@ def draw_B(hb, x, y, s):
   hb.goto_point(x + s*.6, y + s*1.25) #point 16
   hb.goto_point(x + s*.25, y + s*1.25) #point 17
   hb.goto_point(x + s*.25, y + s*1) #point 14
+  hb.pen_up()
   hb.goto_point(x,y)
   hb.pen_up()
 

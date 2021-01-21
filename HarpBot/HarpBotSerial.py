@@ -7,21 +7,21 @@ is_pen_up = False
 def xy_to_gcode(x, y):
   global is_pen_up
   
-  code = 'G0 X{:.3f} Y{:.3F} '.format(x, y)
+  code = 'G0X{:.3f}Y{:.3F}'.format(x, y)
   if is_pen_up:
     code += 'Z5.000'
   else:
     code += 'Z-5.000'
   
-  code += '\r\n'
+  code += '\n'
   return bytes(code, 'utf-8')
 
-PEN_UP_GCODE = b'G0 Z5\r\n'
-PEN_DOWN_GCODE = b'G0 Z-5\r\n'
+PEN_UP_GCODE = b'G0Z5\n'
+PEN_DOWN_GCODE = b'G0Z-5\n'
 
 
 class HarpBotSerial:
-  def __init__(self, port='COM4', baudrate=115200):
+  def __init__(self, port='COM4', baudrate=250000):
     self.connected = False
     
     # Now try to connect to the robot. User will be able to detect if it worked based on on self.connected
@@ -29,9 +29,9 @@ class HarpBotSerial:
       self.ser = serial.Serial(port=port, baudrate=baudrate, timeout=3)
       if self.ser.is_open:
         self.connected = True
-    except:
-      pass
-    
+    except Exception as e:
+      print(e)
+      
     if self.connected:
       print("Connected to HarpBot on port {} with baudrate {}.".format(port, baudrate))
       self.pen_down()
@@ -67,7 +67,6 @@ class HarpBotSerial:
       print(str(line))
       return True
     
-    time.sleep(0.2)
     return False
     
     

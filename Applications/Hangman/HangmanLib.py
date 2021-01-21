@@ -9,10 +9,10 @@ import FontLibrary
 MAX_PHRASE_LENGTH = 20 # Only allow phrases that can fit in a single line on the paper
 
 # Gallows
-GALLOWS_X = -80.0
-GALLOWS_Y = 125.0
+GALLOWS_X = -75.0
+GALLOWS_Y = 130.0
 GALLOWS_W = 75.0
-GALLOWS_H = 130.0
+GALLOWS_H = 110.0
 NOOSE_X = GALLOWS_X + 0.8*GALLOWS_W  #(g_x + 0.8*g_w, g_y + 0.8*g_h)
 NOOSE_Y = GALLOWS_Y + 0.8*GALLOWS_H
 
@@ -21,10 +21,10 @@ HEAD_RADIUS = 10
 HEAD_X = NOOSE_X
 HEAD_Y = NOOSE_Y - HEAD_RADIUS
 
+# Body
 BODY_HEIGHT = 30
 BODY_WIDTH = 5
 
-# Body
 BODY_X1 = HEAD_X - (BODY_WIDTH)/2.0
 BODY_Y1 = HEAD_Y - HEAD_RADIUS - BODY_HEIGHT
 BODY_X2 = HEAD_X + (BODY_WIDTH)/2.0
@@ -61,37 +61,38 @@ RIGHT_LEG_X2 = BODY_X2 + LEG_WIDTH
 RIGHT_LEG_Y2 = BODY_Y1
 
 # Category cloud
-CLOUD_X = 50.0
-CLOUD_Y = 175.0
+CLOUD_X = 20.0
+CLOUD_Y = 200.0
 CLOUD_W = 125.0
-CLOUD_H = 150.0
+CLOUD_H = 100.0
 
-CAT_LABEL_W = CLOUD_W*0.6
+CAT_LABEL_W = CLOUD_W*0.5
 CAT_LABEL_X = CLOUD_X + 0.5*CLOUD_W - 0.5*CAT_LABEL_W
-CAT_LABEL_Y = CLOUD_Y + 0.25*CLOUD_H
+CAT_LABEL_Y = CLOUD_Y - 0.15*CLOUD_H
 
 CAT_NAME_W = CLOUD_W*0.70
 CAT_NAME_X = CLOUD_X + 0.5*CLOUD_W - 0.5*CAT_NAME_W
 CAT_NAME_Y = CLOUD_Y + 0.125*CLOUD_H
 
 # Guess table
-GUESS_TABLE_X = CLOUD_X
-GUESS_TABLE_Y = GALLOWS_Y
-GUESS_TABLE_W = CLOUD_W
-GUESS_TABLE_H = 30
-
-GUESS_LABEL_W = GUESS_TABLE_W / 2.0
+GUESS_TABLE_W = CLOUD_W*0.6
+GUESS_TABLE_X = CLOUD_X + CLOUD_W/2.0 - GUESS_TABLE_W/2.0
+GUESS_TABLE_Y = GALLOWS_Y + 16.0
+GUESS_TABLE_H = 25
+  
+GUESS_LABEL_W = GUESS_TABLE_W*0.75
 GUESS_LABEL_X = GUESS_TABLE_X + 0.5*GUESS_TABLE_W - 0.5*GUESS_LABEL_W
-GUESS_LABEL_Y = GUESS_TABLE_Y + 1.1*GUESS_TABLE_H
+GUESS_LABEL_Y = GALLOWS_Y
 
-GUESS_W = GUESS_TABLE_W*0.50
+GUESS_W = GUESS_TABLE_W*0.8
 GUESS_X = GUESS_TABLE_X + 0.5*GUESS_TABLE_W - 0.5*GUESS_W
-GUESS_Y = GUESS_TABLE_Y + 0.2*GUESS_TABLE_H
+GUESS_Y = GUESS_TABLE_Y + 0.25*GUESS_TABLE_H
 
 # Blanks
 BLANKS_X = -75.0
-BLANKS_Y = 110.0
-BLANKS_W = 250.0
+BLANKS_Y = 90.0
+BLANKS_W = 255.0
+MAX_BLANKS_H = GALLOWS_Y - BLANKS_Y - 10
 
 
 def load_phrases(file_list):
@@ -243,14 +244,24 @@ def draw_category(bot, category):
         if ii == len(cloud_coords):
             bot.pen_up()
 
-    # TODO: draw the word "category" on top of box
     draw_string(bot, "category", CAT_LABEL_X, CAT_LABEL_Y, CAT_LABEL_W)
     draw_string(bot, category, CAT_NAME_X, CAT_NAME_Y, CAT_NAME_W)
 
 
 def draw_blanks(bot, phrase):
     _, blankified_phrase = blankify(phrase,[])
-    draw_string(bot, blankified_phrase, BLANKS_X, BLANKS_Y, BLANKS_W)
+    approx_blank_w = BLANKS_W/len(blankified_phrase)
+    approx_blank_h = approx_blank_w*FontLibrary.MAX_LETTER_Y
+    
+    # When there's a short word, the full BLANKS_W makes the letters too tall s.t. they intersect with gallows.
+    # Let's detect when this happens and set blanks_w to be s.t. the letters are MAX_BLANKS_H tall.
+    if approx_blank_h > MAX_BLANKS_H:
+      approx_blank_w = MAX_BLANKS_H/FontLibrary.MAX_LETTER_Y
+      blanks_w = approx_blank_w*len(blankified_phrase)
+    else:
+      blanks_w = BLANKS_W
+      
+    draw_string(bot, blankified_phrase, BLANKS_X, BLANKS_Y, blanks_w)
 
 
 def draw_gallows(bot):
@@ -281,13 +292,13 @@ def draw_guessing_table(bot):
     bot.draw_rectangle(GUESS_TABLE_X + eps, GUESS_TABLE_Y + eps, GUESS_TABLE_X + GUESS_TABLE_W - eps, GUESS_TABLE_Y + GUESS_TABLE_H - eps)
     draw_string(bot, 'GUESSES', GUESS_LABEL_X, GUESS_LABEL_Y, GUESS_LABEL_W)
 
+
 def draw_head(bot):
     bot.draw_circle(HEAD_X, HEAD_Y, HEAD_RADIUS)
     
     
 def draw_left_arm(bot):
     # bot.draw_rectangle(LEFT_ARM_X1, LEFT_ARM_Y1, LEFT_ARM_X2, LEFT_ARM_Y2)
-    # Move in the correct waypoint motion
     x = LEFT_ARM_X2 - ARM_WIDTH
     y = LEFT_ARM_Y1
     s = ARM_WIDTH
@@ -299,6 +310,7 @@ def draw_left_arm(bot):
     bot.goto_point(x + s*0,   y + s*1.5) # Point 5
     bot.pen_up()
   
+  
 def draw_right_arm(bot):
     #bot.draw_rectangle(RIGHT_ARM_X1, RIGHT_ARM_Y1, RIGHT_ARM_X2, RIGHT_ARM_Y2)
     bot.pen_up()
@@ -306,7 +318,8 @@ def draw_right_arm(bot):
     bot.pen_down()
     bot.goto_point(RIGHT_ARM_X2 + 0, RIGHT_ARM_Y1 - ARM_HEIGHT)
     bot.pen_up()
-    
+   
+   
 def draw_left_leg(bot):
     #bot.draw_rectangle(LEFT_LEG_X1, LEFT_LEG_Y1, LEFT_LEG_X2, LEFT_LEG_Y2)
     bot.goto_point(LEFT_LEG_X1, LEFT_LEG_Y1)
@@ -314,12 +327,14 @@ def draw_left_leg(bot):
     bot.goto_point(LEFT_LEG_X2, LEFT_LEG_Y2)
     bot.pen_up()
   
+
 def draw_right_leg(bot):
     #bot.draw_rectangle(RIGHT_LEG_X1, RIGHT_LEG_Y1, RIGHT_LEG_X2, RIGHT_LEG_Y2)
     bot.goto_point(RIGHT_LEG_X2, RIGHT_LEG_Y1)
     bot.pen_down()
     bot.goto_point(RIGHT_LEG_X1, RIGHT_LEG_Y2)
     bot.pen_up()
+
 
 def draw_spine(bot):
     # bot.draw_rectangle(BODY_X1, BODY_Y1, BODY_X2, BODY_Y2)
