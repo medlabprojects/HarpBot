@@ -103,7 +103,7 @@ def load_phrases(file_list):
 
     for filename in file_list:
         line_num = 1
-        with open(filename, 'r', encoding='utf-8') as f:
+        with open(filename, 'r', encoding='cp1252') as f:
             reader = csv.reader(f, delimiter=',')
             print("Parsing " + filename)
             for row in reader:

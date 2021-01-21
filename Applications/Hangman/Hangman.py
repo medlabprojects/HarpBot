@@ -20,6 +20,8 @@ phrase_files = ["datasets/real_robots.csv",
                 "datasets/fictional_robots.csv",
                 "datasets/spongebob.csv"]
 
+phrase_files = ["datasets/wheel_of_fortune.csv"]
+                
 # Load the category/phrase pairs
 category_phrase_list = HL.load_phrases(phrase_files)
 
