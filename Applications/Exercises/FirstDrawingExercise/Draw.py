@@ -63,5 +63,10 @@ bot.pen_up() # Lift the pen off the paper when we're finished drawing
 
 ####################################################
 ####################################################
+
+# Draw any remaining frames
+bot.animation_skip_ctr = 0
+bot.draw_scene()
+
 # Wait for a key press before closing the plot
 input('Press any key to continue')
