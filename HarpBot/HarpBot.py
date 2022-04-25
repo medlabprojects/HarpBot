@@ -7,8 +7,6 @@ import HarpPlot
 import HarpBotSerial
 
 
-# Toggle to turn animation on/off
-ANIMATION_ON = False
 
 # Robot parameters to be measured/calibrated
 LINK_1_LENGTH = 160.0 # (mm)
@@ -76,10 +74,17 @@ class HarpBot:
         At any rate, this class will animate the robot moving around and drawing using MatPlotLib.
         """
 
+
+        # Toggle to turn animation on/off
+        self.animation_on = True
+        self.animation_skip = 10 # Plot every nth frame for speed
+
         # Initialize robot to zero position
         self.joint_angles = [0, 0]
         self.xpos = HOME_X
         self.ypos = HOME_Y
+
+        self.animation_skip_ctr = 0;
 
         self.is_pen_down = True # When pen is down, the robot will draw as it moves
 
@@ -99,7 +104,7 @@ class HarpBot:
         else:
             print('Robot could not be enabled for HarpBot.')
         
-        if ANIMATION_ON:
+        if self.animation_on:
             print('Animation set to on. Plotting robot movements with HarpPlot.')
             self.hp = HarpPlot.HarpPlot()
             self.robot_lines = []
@@ -121,8 +126,12 @@ class HarpBot:
 
     def draw_scene(self):
         #self.draw_workspace()
-        self.clear_robot()
-        self.draw_robot()
+        if self.animation_skip_ctr % self.animation_skip == 0:
+            self.clear_robot()
+            self.draw_robot()
+            self.animation_skip_ctr = 0
+
+        self.animation_skip_ctr = self.animation_skip_ctr + 1
 
     def clear_robot(self):
         # Clears the line segments that we drew for the robot
@@ -235,7 +244,7 @@ class HarpBot:
         if self.robot_enabled:
             self.hb_ser.goto(x, y)
         
-        if ANIMATION_ON:
+        if self.animation_on:
             self.draw_scene()
             # If the pen is down, then draw a line from the previous point to the new point
             if self.is_pen_down:
